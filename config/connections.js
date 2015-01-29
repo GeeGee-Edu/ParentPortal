@@ -50,7 +50,7 @@ module.exports.connections = {
 
   kitsongServer: {
     adapter: 'sails-mysql',
-    host: '192.168.11.7',
+    host: '192.168.11.8',
     user: 'gary',
     password: 'gark452',
     database: 'moodle'

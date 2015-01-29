@@ -8,10 +8,10 @@
 module.exports = {
 
 	/*
-	* This should ask for attendance to be taken for a single course.
 	*/
 	index: function(req, res){
 		res.view("attendance.ejs");
+
 		/*
 		//This should pick a cohort (hardcoded to 1)
 		CohortMember.find().where({ cohort: 1 }).exec(function (err, member) {
