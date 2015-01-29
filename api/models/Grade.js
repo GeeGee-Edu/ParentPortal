@@ -1,15 +1,12 @@
 /**
-* UserEnrolments.js
+* Grades.js
 *
 * @description :: TODO: You might write a short summary of how this model works and what it represents here.
 * @docs        :: http://sailsjs.org/#!documentation/models
 */
 
 module.exports = {
-  /*
-  * Moodle table for the userEnrolments
-  */
-  tableName: 'mdl_user_enrolments',
+	tableName: 'mdl_grade_grades',
 
   attributes: {
     id: {
@@ -17,9 +14,17 @@ module.exports = {
       primaryKey: true,
       required: true
     },
-    user:      { model: 'user', columnName: 'userid' },
-    enrolment: { model: 'enrolment', columnName: 'enrolid' }
+
+    item: { model: 'gradeitem', columnName: 'itemid' },
+    
+    finalgrade: {
+    	type: 'integer'
+    },
+
+    feedback: {
+    	type: 'string'
+    }
   }
 
-
 };
+

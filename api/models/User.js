@@ -17,10 +17,37 @@ module.exports = {
       primaryKey: true,
       required: true
     },
-    firstname: { type: 'string' },
-    lastname: { type: 'string' },
-    username: { type: 'string' },
-    email: { type: 'email' }
+
+    firstname: { 
+      type: 'string' 
+    },
+
+    lastname: { 
+      type: 'string' 
+    },
+
+    username: { 
+      type: 'string' 
+    },
+
+    email: { 
+      type: 'email' 
+    },
+
+    fullname: function(){
+      return this.firstname + " " + this.lastname;
+    }
+  },
+
+  /*
+  *   Fetch the all Courses
+  */
+  getCourses: function(userid, cb){
+    UserEnrolment.find({where  {user: userid} }).populate('enrolment').exec(function (err, enrols) {
+      if(err) return cb(400);
+
+      return cb(null, enrols);      
+    });
   }
 
 };

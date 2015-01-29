@@ -1,3 +1,10 @@
+/*
+* Written by Gary Krige
+*
+* MIT Licence
+*
+*/
+
 app.factory("CohortMemberFactory", function($http) {
   // Define the Student function
   var Members = function() {

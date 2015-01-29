@@ -18,6 +18,6 @@ module.exports = {
       required: true
     },
     course: { model: 'course', columnName: 'courseid' }
-  }
+  },
 
 };
