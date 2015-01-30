@@ -1,24 +1,29 @@
-app.factory("ReportFactory", function($http) {
-  // Define the Student function
-  var Report = function(username) {
-    this.initialize = function() {
+/* global reportApp */
+reportApp.factory('ReportFactory', function($http) {
+  'use strict';
+
+  /**
+   * This is the ReportRactory.
+   * @param {string} name
+   */
+  var Report = function(name) {
+    this.initialise = function() {
       var self = this;
-      var reportData = $http.get('/report?' + username);
+      var reportData = $http.get('/report/user?name=' + name);
 
-      //Resolve promise
       reportData.then(function(response) {
-        //This needs to fetch all report data to be shown
-
-        self.data = response.data;
-      },
-      function(error){
-        console.log(result);
-      });
+          self.courses = response.data.courses;
+          self.grades = response.data.grades;
+          console.log('Courses : ' + self.courses.length);
+        },
+        function(error) {
+          console.log('Report' + error);
+        }
+      );
     };
 
-    this.initialize();
+    this.initialise();
   };
 
-  // Return a reference to the function
   return Report;
 });

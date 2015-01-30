@@ -1,12 +1,12 @@
 /**
-* Grades.js
-*
-* @description :: TODO: You might write a short summary of how this model works and what it represents here.
-* @docs        :: http://sailsjs.org/#!documentation/models
-*/
+ * Grades.js
+ *
+ * @description :: TODO:
+ * @docs        :: http://sailsjs.org/#!documentation/models
+ */
 
 module.exports = {
-	tableName: 'mdl_grade_grades',
+  tableName: 'mdl_grade_grades',
 
   attributes: {
     id: {
@@ -15,16 +15,35 @@ module.exports = {
       required: true
     },
 
-    item: { model: 'gradeitem', columnName: 'itemid' },
-    
+    user: {
+      model: 'user',
+      columnName: 'userid'
+    },
+
+    item: {
+      model: 'gradeitem',
+      columnName: 'itemid'
+    },
+
     finalgrade: {
-    	type: 'integer'
+      type: 'integer'
+    },
+
+    rawgrademax: {
+      type: 'int'
+    },
+
+    usermodified: {
+      type: 'int'
+    },
+
+    aggregationweight:{
+      type: 'int'
     },
 
     feedback: {
-    	type: 'string'
+      type: 'string'
     }
   }
 
 };
-

@@ -1,0 +1,16 @@
+{
+    "extends": "../.jshintrc",
+
+    "globals": {
+        "Attendance": false,
+        "Cohort": false,
+        "CohortMember": false,
+        "Course": false,
+        "Enrolment": false,
+        "Grade": false,
+        "GradeItem": false,
+        "Report": false,
+        "User": false,
+        "UserEnrolment": false
+    }
+}

@@ -30,8 +30,8 @@
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/gary/parentPortal.git"
+    "url": "git://github.com/garykrige/parentPortal.git"
   },
-  "author": "gary",
-  "license": ""
+  "author": "Gary Krige",
+  "license": "MIT"
 }

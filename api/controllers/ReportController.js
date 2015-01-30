@@ -1,63 +1,107 @@
 /**
- * ReportControllerController
+ * ReportController
  *
- * @description :: Server-side logic for managing Reportcontrollers
+ * @description :: Server-side logic for managing Reports
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
 module.exports = {
-	/*
-	*		Report front page
-	*/
-	index: function(req, res){
-		res.view("report.ejs");
-	},
 
-	/*
-	*	Return a users active courses with marks and 
-	*	feedback
-	*	
-	*	Should return something like this:
-	*
-	*	courses = {
-  *        name,
-  *        total,
-  *        items = {
-  *          name
-  *          total
-  *          feedback
-  *        }
-  *      }    
-  * !!!!
-	*	Set up Grade 10 - 12 Design Courses
-	* (BECKS)
-	*
-  * !!!!
-	*/
-	user: function(req, res){
-		
-		console.log('Requested : ' + req.query.id);
+  /**
+   * Reports  Home page
+   * @param  {json} req
+   * @param  {json} res
+   */
+  index: function(req, res) {
+    'use strict';
+    return res.view('report.ejs');
+  },
 
-		User.find(req.query.id, function (err, user){
-			//Fail Quickly!
-			if(err) return res.send(400);
-			user = user[0]
-			console.log('Found : ' + user.fullname());
+  /**
+   * Sends user's active courses with grades and feedback.
+   * !!!!
+   *  Set up Grade 10 - 12 Design Courses
+   * (BECKS)
+   *
+   * !!!!
+   * @param  {[type]} req
+   * @param  {[type]} res
+   */
+  user: function(req, res) {
+    'use strict';
 
-			//Fetch courses for this user
-			User.getCourses(user.id, function(err, courses){
-				if(err) return res.send(400);
+    console.log('\n---');
+    console.log('Requested name: ' + req.query.name);
 
-				console.log('Courses : ' + courses.length);
+    User.findByFirstname(req.query.name, function(err, user) {
+      if (err) {
+        console.log(err);
+        return res.send(400);
+      }
 
-				//Fetch all user's grades
-				Grade.find({where: {user: user.id} }).populate('item').exec(function (err, grades) {
-					res.json({courses: courses, grades: grades});
-				});
-			});
-			
-		});
-	}
+      /**
+       * These are to help with async fetching of each.
+       * I'm sure there's a better way...
+       */
+      var courses;
+      var grades;
+
+      user = user[0];
+      console.log('Found : ' + user.fullname() + '\n');
+
+      /**
+       * Fetch courses for this user
+       */
+      User.getCourses(user.id, function(err, cs) {
+        if (err) {
+          return res.send(400);
+        }
+
+        courses = cs;
+        console.log('Courses found : ' + courses.length);
+
+        /**
+         * Check if we're ready to return
+         */
+        if (grades) {
+          console.log('Done.\n---');
+          return res.json({
+            courses: courses,
+            grades: grades
+          });
+        }
+      });
+
+      /**
+       * Fetch all user's grades
+       */
+      Grade.find({
+        where: {
+          user: user.id
+        }
+      }).populate('item').exec(
+        function(err, gs) {
+          if (err) {
+            console.log(err);
+            return res.send(400);
+          }
+
+          grades = gs;
+          console.log('Grades found : ' + grades.length);
+
+          /**
+           * Check if we're ready to return
+           */
+          if (courses) {
+            console.log('Done.\n---');
+            return res.json({
+              courses: courses,
+              grades: grades
+            });
+          }
+        }
+      );
+    });
+  }
 
 };
-

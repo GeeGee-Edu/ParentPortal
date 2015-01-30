@@ -1,14 +1,15 @@
 /**
-* Student.js
-*
-* @description :: TODO: You might write a short summary of how this model works and what it represents here.
-* @docs        :: http://sailsjs.org/#!documentation/models
-*/
+ * Student.js
+ *
+ * @description :: TODO
+ * @docs        :: http://sailsjs.org/#!documentation/models
+ */
 
 module.exports = {
+
   /*
-  * Moodle table for the users
-  */
+   * Moodle table for the users
+   */
   tableName: 'mdl_user',
 
   attributes: {
@@ -18,36 +19,67 @@ module.exports = {
       required: true
     },
 
-    firstname: { 
-      type: 'string' 
+    firstname: {
+      type: 'string'
     },
 
-    lastname: { 
-      type: 'string' 
+    lastname: {
+      type: 'string'
     },
 
-    username: { 
-      type: 'string' 
+    username: {
+      type: 'string'
     },
 
-    email: { 
-      type: 'email' 
+    email: {
+      type: 'email'
     },
 
-    fullname: function(){
-      return this.firstname + " " + this.lastname;
+    fullname: function() {
+      'use strict';
+
+      return this.firstname + ' ' + this.lastname;
     }
   },
 
-  /*
-  *   Fetch the all Courses
-  */
-  getCourses: function(userid, cb){
-    UserEnrolment.find({where  {user: userid} }).populate('enrolment').exec(function (err, enrols) {
-      if(err) return cb(400);
+  /**
+   * Fetch all of the courses this user is enrolled in.
+   * @param  {int}      userid
+   * @param  {Function} cb        Callback function
+   * @return {[Course => {id, name}]}           Array of courses
+   */
+  getCourses: function(userid, cb) {
+    'use strict';
+    var courses = [];
 
-      return cb(null, enrols);      
-    });
+    UserEnrolment.find({
+      where: {
+        user: userid
+      }
+    }).populate('enrolment').exec(
+      function(err, enrols) {
+        if (err) {
+          return cb(err);
+        }
+
+        /**
+         * Pick out only the Course details from the enrolment
+         */
+        for (var i = 0; i < enrols.length; i++) {
+          Course.findById(enrols[i].enrolment.course, function(err, cs) {
+            if (err) {
+              console.log(err);
+              return cb(err);
+            }
+
+            courses.push(cs[0]);
+
+            if (courses.length === enrols.length) {
+              return cb(null, courses);
+            }
+          });
+        }
+      });
   }
 
 };
