@@ -14,6 +14,11 @@ git clone "https://github.com/GeeGee-Edu/ParentPortal"
 sudo npm install -g
 ```
 
+### Dependancies
+* [Sails.js](http://sailsjs.org/)
+* [Sails-mysql]
+* [Html-pdf]
+
 # Start Server
 
 Run `sails lift` to start the web server and access it on [http://localhost:1337](http://localhost:1337).
