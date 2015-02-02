@@ -1,0 +1,453 @@
+Half-funtional report pdf thingy
+
+# --------------
+# Please enter the commit message for your changes. Everything below
+# this paragraph is ignored, and an empty message aborts the commit.
+# Just close the window to accept your message.
+diff --git a/api/controllers/ReportController.js b/api/controllers/ReportController.js
+index 2e3b8e0..75dc6a9 100644
+--- a/api/controllers/ReportController.js
++++ b/api/controllers/ReportController.js
+@@ -4,13 +4,10 @@
+  * @description :: Server-side logic for managing Reports
+  * @help        :: See http://links.sailsjs.org/docs/controllers
+  */
+-
+ module.exports = {
+
+   /**
+    * Reports  Home page
+-   * @param  {json} req
+-   * @param  {json} res
+    */
+   index: function(req, res) {
+     'use strict';
+@@ -18,6 +15,162 @@ module.exports = {
+   },
+
+   /**
++   * Generate a pdf Report.
++   *
++   * N.B. query.cohort required.
++   *
++   */
++  /* global UserService */
++  pdf: function(req, res) {
++    'use strict';
++
++    console.log('\n---');
++    console.log('Requested Cohort ID: ' + req.query.cohort);
++
++    //Build up an html file to render
++    var html = '';
++    html +=
++"<style>table {\
++  border-collapse: separate;\
++  border-spacing: 0;\
++  color: #4a4a4d;\
++  font: 14px/1.4 'Helvetica Neue', Helvetica, Arial, sans-serif;\
++}\
++th,\
++td {\
++  padding: 10px 15px;\
++  vertical-align: middle;\
++}\
++thead {\
++  background: #395870;\
++  background: linear-gradient(#49708f, #293f50);\
++  color: #fff;\
++  font-size: 11px;\
++  text-transform: uppercase;\
++}\
++th:first-child {\
++  border-top-left-radius: 5px;\
++  text-align: left;\
++}\
++th:last-child {\
++  border-top-right-radius: 5px;\
++}\
++tbody tr:nth-child(even) {\
++  background: #f0f0f2;\
++}\
++td {\
++  border-bottom: 1px solid #cecfd5;\
++  border-right: 1px solid #cecfd5;\
++}\
++td:first-child {\
++  border-left: 1px solid #cecfd5;\
++}</style>";
++    /**
++     * Print reports for a specific cohort.
++     */
++    CohortMember.find({
++      where: {
++        cohort: req.query.cohort
++      }
++    }).populate('user').exec(function(err, enrolled) {
++      if (err) {
++        return res.send(err);
++      }
++
++      var completedUser = 0;
++
++      for (var x = 0; x < enrolled.length; x++) {
++        UserService.getCourseGrades({
++            id: enrolled[x].user.id
++          },
++          function(err, data) {
++            if (err) {
++              return res.send(err);
++            }
++
++            var userTemp = '<div class="user-report">';
++            userTemp += '<h1 style="text-align=centre;">' +
++              data.user.fullname() + '</h1>';
++
++            /**
++             * Loop through all user's Courses
++             */
++
++            /* jshint ignore:start */
++            for (var i = 0; i < data.courses.length; i++) {
++              var courseTemp = "";
++              var hasData = false;
++
++              courseTemp += "<div class='course'><h2>" + data.courses[i].fullname + "</h2>";
++              courseTemp += "<table class='pure-table'>";
++              courseTemp += "<thead><tr><th>Activity</th><th>Mark</th><th>Feedback</th></tr></thead><tbody>";
++
++              /**
++               * Loop through user's grades for current course.
++               *
++               * N.B not to show if no grades.
++               *
++               */
++              for (var j = 0; j < data.grades.length; j++) {
++                if (data.grades[j].item.course === data.courses[i].id &&
++                  data.grades[j].item.itemname !== null &&
++                  data.grades[j].usermodified !== null) {
++                  hasData = true;
++
++                  courseTemp += "<tr>";
++                  courseTemp += "<td>" + data.grades[j].item.itemname + "</td>";
++                  courseTemp += "<td>" +
++                    Math.round(data.grades[j].finalgrade * 100 / data.grades[j].rawgrademax) +
++                    "% </td>";
++                  courseTemp += "<td>" + data.grades[j].feedback + "</td>";
++                  courseTemp += "</tr>";
++                }
++              };
++              courseTemp += "</tbody></table></div>"; //course
++              if(hasData){
++                userTemp += courseTemp;
++              }
++
++            }
++            /* jshint ignore:end */
++
++            userTemp += '</div>'; //user-report
++            //Not sure if there could be a race for the html variable.
++            html += userTemp;
++
++            completedUser += 1;
++
++            /**
++             * Are we ready to compile the pdf yet?
++             */
++            if (completedUser === enrolled.length) {
++              var pdf = require('html-pdf');
++              var options = {
++                filename: './reports.pdf',
++                format: 'Letter'
++              };
++
++              //Create PDF from html string
++              pdf.create(html, options).toFile(function(err, result) {
++                if (err) {
++                  console.log(err);
++                  return res.send(err);
++                }
++
++                console.log(result);
++                res.send('Done'); //Improve here
++              });
++            }
++          });
++      }
++
++    });
++
++
++
++  },
++
++  /**
+    * Sends user's active courses with grades and feedback.
+    * !!!!
+    *  Set up Grade 10 - 12 Design Courses
+@@ -27,80 +180,21 @@ module.exports = {
+    * @param  {[type]} req
+    * @param  {[type]} res
+    */
++  /* global UserService */
+   user: function(req, res) {
+     'use strict';
+
+     console.log('\n---');
+-    console.log('Requested name: ' + req.query.name);
++    console.log('Requested id: ' + req.query.id);
+
+-    User.findByFirstname(req.query.name, function(err, user) {
++    UserService.data({
++      id: req.query.id
++    }, function(err, data) {
+       if (err) {
+-        console.log(err);
+-        return res.send(400);
++        res.send(err);
+       }
+
+-      /**
+-       * These are to help with async fetching of each.
+-       * I'm sure there's a better way...
+-       */
+-      var courses;
+-      var grades;
+-
+-      user = user[0];
+-      console.log('Found : ' + user.fullname() + '\n');
+-
+-      /**
+-       * Fetch courses for this user
+-       */
+-      User.getCourses(user.id, function(err, cs) {
+-        if (err) {
+-          return res.send(400);
+-        }
+-
+-        courses = cs;
+-        console.log('Courses found : ' + courses.length);
+-
+-        /**
+-         * Check if we're ready to return
+-         */
+-        if (grades) {
+-          console.log('Done.\n---');
+-          return res.json({
+-            courses: courses,
+-            grades: grades
+-          });
+-        }
+-      });
+-
+-      /**
+-       * Fetch all user's grades
+-       */
+-      Grade.find({
+-        where: {
+-          user: user.id
+-        }
+-      }).populate('item').exec(
+-        function(err, gs) {
+-          if (err) {
+-            console.log(err);
+-            return res.send(400);
+-          }
+-
+-          grades = gs;
+-          console.log('Grades found : ' + grades.length);
+-
+-          /**
+-           * Check if we're ready to return
+-           */
+-          if (courses) {
+-            console.log('Done.\n---');
+-            return res.json({
+-              courses: courses,
+-              grades: grades
+-            });
+-          }
+-        }
+-      );
++      return res.json(data);
+     });
+   }
+
+diff --git a/api/services/UserService.js b/api/services/UserService.js
+new file mode 100644
+index 0000000..2a5db61
+--- /dev/null
++++ b/api/services/UserService.js
+@@ -0,0 +1,81 @@
++/**
++ * CourseGrades Service.
++ *
++ *
++ */
++exports.getCourseGrades = function(options, cb) {
++  'use strict';
++
++  User.findById(options.id, function(err, user) {
++    if (err) {
++      console.log(err);
++      return cb(err);
++    }
++
++    /**
++     * These are to help with async fetching of each.
++     * I'm sure there's a better way...
++     */
++    var courses;
++    var grades;
++
++    user = user[0];
++    console.log('Found : ' + user.fullname() + '\n');
++
++    /**
++     * Fetch courses for this user
++     */
++    User.getCourses(user.id, function(err, cs) {
++      if (err) {
++        return cb(err);
++      }
++
++      courses = cs;
++      console.log('Courses found : ' + courses.length);
++
++      /**
++       * Check if we're ready to return
++       */
++      if (grades) {
++        console.log('Done.\n---');
++        return cb(null, {
++          user: user,
++          courses: courses,
++          grades: grades
++        });
++      }
++    });
++
++    /**
++     * Fetch all user's grades
++     */
++    Grade.find({
++      where: {
++        user: user.id
++      }
++    }).populate('item').exec(
++      function(err, gs) {
++        if (err) {
++          console.log(err);
++          return cb(err);
++        }
++
++        grades = gs;
++        console.log('Grades found : ' + grades.length);
++
++        /**
++         * Check if we're ready to return
++         */
++        if (courses) {
++          console.log('Done.\n---');
++          return cb(null, {
++            user: user,
++            courses: courses,
++            grades: grades
++          });
++        }
++      }
++    );
++
++  });
++};
+diff --git a/assets/js/report/ReportApp.js b/assets/js/report/ReportApp.js
+index 7ed36cf..b0513c1 100644
+--- a/assets/js/report/ReportApp.js
++++ b/assets/js/report/ReportApp.js
+@@ -7,10 +7,15 @@ var reportApp = angular.module('reportApp', []);
+ reportApp.controller('ReportController', function($scope, ReportFactory) {
+   'use strict';
+
+-  $scope.report;
++  //Start with null user.
++  $scope.report = undefined;
+
++  /**
++   * Get a new user's report
++   * @param  {string} name
++   * @return {null}
++   */
+   $scope.newReport = function(name){
+     $scope.report = new ReportFactory(name);
+   };
+-
+ });
+diff --git a/businesscard.pdf b/businesscard.pdf
+new file mode 100644
+index 0000000..613da25
+Binary files /dev/null and b/businesscard.pdf differ
+diff --git a/reports.pdf b/reports.pdf
+new file mode 100644
+index 0000000..8bd19a7
+Binary files /dev/null and b/reports.pdf differ
+diff --git a/views/report.ejs b/views/report.ejs
+index 49f6e35..41e7ce8 100644
+--- a/views/report.ejs
++++ b/views/report.ejs
+@@ -8,31 +8,35 @@
+
+ <div class="pure-g" ng-app="reportApp" ng-controller="ReportController">
+   <div class="pure-u-1">
+-    Name: <input ng-model="studentName">
+-    <button class="pure-button" ng-click="newReport(studentName)">Generate Report</button>
++    <form class="pure-form">
++      <input ng-model="studentName" placeholder="Name">
++      <button type="submit" class="pure-button pure-button-primary" ng-click="newReport(studentName)">Generate Report</button>
++    </form>
+   </div>
+   <div class="pure-g">
+     <div class="pure-u-1 pure-u-md-1-3 pure-u-ld-1-4" ng-repeat="course in report.courses">
+-      <h2>{{course.fullname}}</h2>
+-      <table class="pure-table">
+-        <thead>
+-          <tr>
+-            <th>Activity</th>
+-            <th>Mark</th>
+-            <th>Feedback</th>
+-          </tr>
+-        </thead>
++      <div ng-show="matchedGrades.length">
++        <h2>{{course.fullname}}</h2>
++        <table class="pure-table">
++          <thead>
++            <tr>
++              <th>Activity</th>
++              <th>Mark</th>
++              <th>Feedback</th>
++            </tr>
++          </thead>
+
+-        <tbody>
+-          <tr ng-repeat="grade in report.grades
+-                    | filter:{item : {course: course.id}, usermodified: '!null'}"
+-              ng-class-even="'pure-table-odd'">
+-            <td><h5>{{grade.item.itemname}}</h5></td>
+-            <td>{{grade.finalgrade*100.0/grade.rawgrademax | number: 1}}%</td>
+-            <td>{{grade.feedback}}</td>
+-          </tr>
+-        </tbody>
+-      </table>
++          <tbody>
++            <tr ng-repeat="grade in matchedGrades = (report.grades |
++            filter:{item : {course: course.id}, usermodified: '!null'})"
++                ng-class-even="'pure-table-odd'">
++              <td><h5>{{grade.item.itemname}}</h5></td>
++              <td>{{grade.finalgrade*100.0/grade.rawgrademax | number: 1}}%</td>
++              <td>{{grade.feedback}}</td>
++            </tr>
++          </tbody>
++        </table>
++      </div>
+     </div>
+   </div>
+ </div>
