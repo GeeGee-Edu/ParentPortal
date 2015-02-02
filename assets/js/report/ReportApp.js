@@ -7,10 +7,15 @@ var reportApp = angular.module('reportApp', []);
 reportApp.controller('ReportController', function($scope, ReportFactory) {
   'use strict';
 
-  $scope.report;
+  //Start with null user.
+  $scope.report = undefined;
 
+  /**
+   * Get a new user's report
+   * @param  {string} name
+   * @return {null}
+   */
   $scope.newReport = function(name){
     $scope.report = new ReportFactory(name);
   };
-
 });
