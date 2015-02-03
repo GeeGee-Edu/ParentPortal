@@ -37,7 +37,6 @@ Type in the URL as follows. `http://localhost:1337/report/pdf?id=` followed by t
 
 Now wait a while. The report PDF will be put in the root directory of ParentPortal.
 
-
 ---
 
 *This project is licensed under the [GPL](http://en.wikipedia.org/wiki/GNU_General_Public_License)*
