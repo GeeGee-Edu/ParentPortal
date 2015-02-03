@@ -64,14 +64,14 @@ module.exports.connections = {
   * Run: npm install sails-mongo                                             *
   *                                                                          *
   ***************************************************************************/
-  kitsongMongoServer: {
-    adapter: 'sails-mongo',
-    host: 'localhost',
-    port: 27017,
-    // user: 'username',
-    // password: 'password',
-    database: 'geegee'
-  },
+  // kitsongMongoServer: {
+  //   adapter: 'sails-mongo',
+  //   host: 'localhost',
+  //   port: 27017,
+  //   // user: 'username',
+  //   // password: 'password',
+  //   database: 'geegee'
+  // },
 
   /***************************************************************************
   *                                                                          *
