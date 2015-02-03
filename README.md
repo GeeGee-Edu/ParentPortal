@@ -11,6 +11,7 @@ Clone the repo and install dependancies:
 
 ```
 git clone "https://github.com/GeeGee-Edu/ParentPortal"
+cd ParentPortal
 sudo npm install -g
 ```
 

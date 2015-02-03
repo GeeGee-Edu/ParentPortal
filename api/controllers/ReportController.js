@@ -99,7 +99,7 @@ module.exports = {
                 if (data.grades[j].item.course === data.courses[i].id &&
                   data.grades[j].item.itemname !== null &&
                   data.grades[j].usermodified !== null &&
-                  data.grade[j].hidden === 0) {
+                  data.grades[j].hidden === 0) {
                   hasData = true;
                   userHasData = true;
 
