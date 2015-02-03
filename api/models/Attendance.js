@@ -9,7 +9,7 @@ module.exports = {
   schema: false,
   autoCreatedAt: true,
   autoUpdatedAt: true,
-  connection: 'kitsongMongoServer',
+  //connection: 'kitsongMongoServer',
 
   attributes: {
     user: { model: 'user' }
