@@ -28,43 +28,9 @@ module.exports = {
     console.log('Requested Cohort ID: ' + req.query.cohort);
 
     //Build up an html file to render
-    var html = '';
-    html +=
-"<style>table {\
-  border-collapse: separate;\
-  border-spacing: 0;\
-  color: #4a4a4d;\
-  font: 14px/1.4 'Helvetica Neue', Helvetica, Arial, sans-serif;\
-}\
-th,\
-td {\
-  padding: 10px 15px;\
-  vertical-align: middle;\
-}\
-thead {\
-  background: #395870;\
-  background: linear-gradient(#49708f, #293f50);\
-  color: #fff;\
-  font-size: 11px;\
-  text-transform: uppercase;\
-}\
-th:first-child {\
-  border-top-left-radius: 5px;\
-  text-align: left;\
-}\
-th:last-child {\
-  border-top-right-radius: 5px;\
-}\
-tbody tr:nth-child(even) {\
-  background: #f0f0f2;\
-}\
-td {\
-  border-bottom: 1px solid #cecfd5;\
-  border-right: 1px solid #cecfd5;\
-}\
-td:first-child {\
-  border-left: 1px solid #cecfd5;\
-}</style>";
+    var fs = require('fs');
+
+    var html = fs.readFileSync('./views/report.html', 'utf8');
     /**
      * Print reports for a specific cohort.
      */
@@ -74,23 +40,38 @@ td:first-child {\
       }
     }).populate('user').exec(function(err, enrolled) {
       if (err) {
+        console.log(err);
         return res.send(err);
       }
 
       var completedUser = 0;
 
       for (var x = 0; x < enrolled.length; x++) {
+        console.log(enrolled[x]);
+
         UserService.getCourseGrades({
             id: enrolled[x].user.id
           },
           function(err, data) {
             if (err) {
+              //console.log(err);
               return res.send(err);
             }
+            var userHasData = false; //We dont want to print out a blank report.
 
-            var userTemp = '<div class="user-report">';
-            userTemp += '<h1 style="text-align=centre;">' +
-              data.user.fullname() + '</h1>';
+            var datetime = new Date();
+            var months = ['January', 'February', 'March',
+              'April', 'May', 'June', 'July', 'August',
+              'September', 'October', 'November', 'December'];
+            var date = datetime.getDate()+ ' ' + months[datetime.getMonth()] +
+              ' ' + datetime.getFullYear();
+
+            var userTemp = '<div class="user-report">\n' +
+              '<div class="header">\n'+
+              /*'<span class="helper"></span>'+*/
+              '<img src="http://localhost:1337/images/drongo2c.png">\n<p>' +
+              data.user.fullname() + '</p><p style="font-size:15px;">'+
+              date+'</p></div>';
 
             /**
              * Loop through all user's Courses
@@ -99,11 +80,14 @@ td:first-child {\
             /* jshint ignore:start */
             for (var i = 0; i < data.courses.length; i++) {
               var courseTemp = "";
-              var hasData = false;
+              var hasData = false; //No need to add blank courses
 
-              courseTemp += "<div class='course'><h2>" + data.courses[i].fullname + "</h2>";
-              courseTemp += "<table class='pure-table'>";
-              courseTemp += "<thead><tr><th>Activity</th><th>Mark</th><th>Feedback</th></tr></thead><tbody>";
+              courseTemp += '<div class="course">\n'+
+              '<h2>' + data.courses[i].fullname + '</h2>\n';
+              courseTemp += '<table>\n' +
+              '<thead>\n<tr>\n' +
+              '<th>Activity</th>\n<th class="marks">Mark (%)</th>\n<th class="feedback">Feedback</th>' +
+              '</tr>\n</thead>\n<tbody>\n';
 
               /**
                * Loop through user's grades for current course.
@@ -114,29 +98,36 @@ td:first-child {\
               for (var j = 0; j < data.grades.length; j++) {
                 if (data.grades[j].item.course === data.courses[i].id &&
                   data.grades[j].item.itemname !== null &&
-                  data.grades[j].usermodified !== null) {
+                  data.grades[j].usermodified !== null &&
+                  data.grade[j].hidden === 0) {
                   hasData = true;
+                  userHasData = true;
 
-                  courseTemp += "<tr>";
-                  courseTemp += "<td>" + data.grades[j].item.itemname + "</td>";
-                  courseTemp += "<td>" +
+                  var feedback = data.grades[j].feedback;
+                  if(feedback == null){
+                    feedback = "";
+                  }
+
+                  courseTemp += '<tr>\n' +
+                    '<td><strong>' + data.grades[j].item.itemname + '</strong></td>\n' +
+                    '<td  class="marks" style="text-align: center;">' +
                     Math.round(data.grades[j].finalgrade * 100 / data.grades[j].rawgrademax) +
-                    "% </td>";
-                  courseTemp += "<td>" + data.grades[j].feedback + "</td>";
-                  courseTemp += "</tr>";
+                    '</td>\n<td class="feedback">' + feedback + '</td>\n</tr>\n';
                 }
-              };
-              courseTemp += "</tbody></table></div>"; //course
-              if(hasData){
-                userTemp += courseTemp;
+              }
+              courseTemp += '</tbody>\n</table>\n</div>'; //course
+              if (hasData) {
+                userTemp += courseTemp + '<hr>';
               }
 
             }
             /* jshint ignore:end */
-
-            userTemp += '</div>'; //user-report
+            userTemp  = userTemp.slice(0,-4);
+            userTemp += '</div>\n'; //user-report
             //Not sure if there could be a race for the html variable.
-            html += userTemp;
+            if(userHasData){
+              html += userTemp;
+            }
 
             completedUser += 1;
 
@@ -144,10 +135,19 @@ td:first-child {\
              * Are we ready to compile the pdf yet?
              */
             if (completedUser === enrolled.length) {
+              html += '</body>\n</html>';
               var pdf = require('html-pdf');
+              console.log(html);
               var options = {
                 filename: './reports.pdf',
-                format: 'Letter'
+                format: 'Letter',
+                border: '10 mm',
+                footer: {
+                  height: '20mm',
+                  contents: '<div class="footer">' +
+                  'Bi-weekly report compiled by Kitsong.' +
+                  '</div>'
+                }
               };
 
               //Create PDF from html string

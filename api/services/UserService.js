@@ -8,7 +8,6 @@ exports.getCourseGrades = function(options, cb) {
 
   User.findById(options.id, function(err, user) {
     if (err) {
-      console.log(err);
       return cb(err);
     }
 
@@ -58,7 +57,6 @@ exports.getCourseGrades = function(options, cb) {
     }).populate('item').exec(
       function(err, gs) {
         if (err) {
-          console.log(err);
           return cb(err);
         }
 

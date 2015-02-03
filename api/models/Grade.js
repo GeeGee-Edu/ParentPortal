@@ -41,6 +41,10 @@ module.exports = {
       type: 'int'
     },
 
+    hidden: {
+      type: 'int'
+    },
+
     feedback: {
       type: 'string'
     }

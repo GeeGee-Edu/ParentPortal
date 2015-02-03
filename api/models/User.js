@@ -48,13 +48,13 @@ module.exports = {
    * @param  {Function} cb        Callback function
    * @return {[Course => {id, name}]}           Array of courses
    */
-  getCourses: function(userid, cb) {
+  getCourses: function(options, cb) {
     'use strict';
     var courses = [];
 
     UserEnrolment.find({
       where: {
-        user: userid
+        user: options.id
       }
     }).populate('enrolment').exec(
       function(err, enrols) {
@@ -68,7 +68,6 @@ module.exports = {
         for (var i = 0; i < enrols.length; i++) {
           Course.findById(enrols[i].enrolment.course, function(err, cs) {
             if (err) {
-              console.log(err);
               return cb(err);
             }
 
