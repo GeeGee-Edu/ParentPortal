@@ -19,6 +19,10 @@ module.exports = {
       type: 'string'
     },
 
+    iteminfo: {
+      type: 'string'
+    },
+
     course: {
       model: 'course',
       columnName: 'courseid'

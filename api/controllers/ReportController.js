@@ -86,7 +86,11 @@ module.exports = {
               '<h2>' + data.courses[i].fullname + '</h2>\n';
               courseTemp += '<table>\n' +
               '<thead>\n<tr>\n' +
-              '<th>Activity</th>\n<th class="marks">Mark (%)</th>\n<th class="feedback">Feedback</th>' +
+              '<th style="width: 10%;">Date</th>\n'+
+              '<th style="width: 30%;">Activity</th>\n'+
+              '<th style="width: 30%;">Description</th>\n' +
+              '<th style="width: 10%;">Mark</th>\n'+
+              '<th style="width: 10%;">Out of</th>' +
               '</tr>\n</thead>\n<tbody>\n';
 
               /**
@@ -100,6 +104,7 @@ module.exports = {
                   data.grades[j].item.itemname !== null &&
                   data.grades[j].usermodified !== null &&
                   data.grades[j].hidden === 0) {
+                  //Found grade data
                   hasData = true;
                   userHasData = true;
 
@@ -108,11 +113,16 @@ module.exports = {
                     feedback = "";
                   }
 
+                  var desc = data.grades[j].item.iteminfo;
+                  if(desc == null){
+                    desc = "";
+                  }
                   courseTemp += '<tr>\n' +
+                    '<td>' + data.grades[j].date() + '</td>\n' +
                     '<td><strong>' + data.grades[j].item.itemname + '</strong></td>\n' +
-                    '<td  class="marks" style="text-align: center;">' +
-                    Math.round(data.grades[j].finalgrade * 100 / data.grades[j].rawgrademax) +
-                    '</td>\n<td class="feedback">' + feedback + '</td>\n</tr>\n';
+                    '<td>' + desc + '</td>\n' +
+                    '<td style="text-align: center;">' + Math.round(data.grades[j].finalgrade) + '</td>\n' +
+                    '<td style="text-align: center;">' + Math.round(data.grades[j].rawgrademax) + '</td>\n';
                 }
               }
               courseTemp += '</tbody>\n</table>\n</div>'; //course
