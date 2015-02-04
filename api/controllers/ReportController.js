@@ -108,21 +108,24 @@ module.exports = {
                   hasData = true;
                   userHasData = true;
 
-                  var feedback = data.grades[j].feedback;
-                  if(feedback == null){
-                    feedback = "";
-                  }
+
 
                   var desc = data.grades[j].item.iteminfo;
                   if(desc == null){
                     desc = "";
                   }
-                  courseTemp += '<tr>\n' +
+                  courseTemp += '<tr style="background: #f0f0f2;">\n' +
                     '<td>' + data.grades[j].date() + '</td>\n' +
                     '<td><strong>' + data.grades[j].item.itemname + '</strong></td>\n' +
                     '<td>' + desc + '</td>\n' +
                     '<td style="text-align: center;">' + Math.round(data.grades[j].finalgrade) + '</td>\n' +
-                    '<td style="text-align: center;">' + Math.round(data.grades[j].rawgrademax) + '</td>\n';
+                    '<td style="text-align: center;">' + Math.round(data.grades[j].rawgrademax) + '</td></tr>\n';
+
+                  var feedback = data.grades[j].feedback;
+                  if(feedback != "" && feedback != null){
+                    courseTemp += '<tr><td></td><td colspan="4">\n' + feedback + '</td></tr>\n';
+                  }
+
                 }
               }
               courseTemp += '</tbody>\n</table>\n</div>'; //course
