@@ -30,7 +30,7 @@ exports.writePDF = function(options, cb) {
       UserService.getCourseGrades({
           id: enrolled[x].user.id
         },
-        function (err, data) {
+        function(err, data) {
           if (err) {
             return cb(err);
           }
@@ -46,28 +46,38 @@ exports.writePDF = function(options, cb) {
           var userTemp = '<div class="user-report">\n' +
             '<div class="header">\n'+
             /*'<span class="helper"></span>'+*/
-            '<img src="http://localhost:1337/images/drongo2c.png">\n<p>' +
-            data.user.fullname() + '</p><p style="font-size:15px;">'+
-            date+'</p></div>';
+            '<img src="http://localhost:1337/images/drongo2w.svg">\n' +
+            '<p style="text-align:right">' + data.user.fullname() + '</p>\n' +
+            '<p style="text-align:right">'+ date + '</p>\n' +
+            '<h2>Interim Academic Report</h2>\n' +
+            '<p style="text-align:left">' +
+      'This is an interim report on individual activities done recently. This report does not necessarily reflect a ' +
+            'summative assessment and should not be used for promotion purposes.</p></div>\n';
 
           /**
            * Loop through all user's Courses
            */
 
-
+          /* jshint ignore:start */
           for (var i = 0; i < data.courses.length; i++) {
-            var courseTemp = '';
+            var courseTemp = "";
             var hasData = false; //No need to add blank courses
 
-            courseTemp += '<div class="course">\n'+
-            '<h2>' + data.courses[i].fullname + '</h2>\n';
+            courseTemp += '<div class="course">\n';
+/*              '<h2>' + data.courses[i].fullname + '</h2>\n';
+*/
             courseTemp += '<table>\n' +
-            '<thead>\n<tr>\n' +
-            '<th style="width: 10%;">Date</th>\n'+
-            '<th style="width: 30%;">Activity</th>\n'+
-            '<th style="width: 30%;">Description</th>\n' +
-            '<th style="width: 10%;">Mark</th>\n'+
-            '<th style="width: 10%;">Out of</th>' +
+            '<thead>\n' +
+/*        '<tr>\n<th colspan="5">' +
+      data.courses[i].fullname + '</th>\n</tr>\n' +
+*/
+            '<tr>\n<th style="width: 7%;">Date</th>\n'+
+            '<th style="width: 25%;">Activity</th>\n'+
+            '<th style="width: 54%;">' +
+      data.courses[i].fullname +
+      '</th>\n' +
+            '<th style="width: 7%;">Mark</th>\n'+
+            '<th style="width: 7%;">Out of</th>' +
             '</tr>\n</thead>\n<tbody>\n';
 
             /**
@@ -80,28 +90,27 @@ exports.writePDF = function(options, cb) {
               if (data.grades[j].item.course === data.courses[i].id &&
                 data.grades[j].item.itemname !== null &&
                 data.grades[j].usermodified !== null &&
-                data.grades[j].hidden === 0) {
+                data.grades[j].item.hidden === 0) {
                 //Found grade data
                 hasData = true;
                 userHasData = true;
 
+
+
                 var desc = data.grades[j].item.iteminfo;
-                if(desc === null){
-                  desc = '';
+                if(desc == null){
+                  desc = "";
                 }
                 courseTemp += '<tr style="background: #f0f0f2;">\n' +
                   '<td>' + data.grades[j].date() + '</td>\n' +
-                  '<td><strong>' + data.grades[j].item.itemname +
-                  '</strong></td>\n' + '<td>' + desc + '</td>\n' +
-                  '<td style="text-align: center;">' +
-                    Math.round(data.grades[j].finalgrade) + '</td>\n' +
-                  '<td style="text-align: center;">' +
-                    Math.round(data.grades[j].rawgrademax) + '</td></tr>\n';
+                  '<td>' + data.grades[j].item.itemname + '</strong></td>\n' +
+                  '<td>' + desc + '</td>\n' +
+                  '<td style="text-align: center;">' + Math.round(data.grades[j].finalgrade) + '</td>\n' +
+                  '<td style="text-align: center;">' + Math.round(data.grades[j].rawgrademax) + '</td></tr>\n';
 
                 var feedback = data.grades[j].feedback;
-                if(feedback !== '' && feedback !== null){
-                  courseTemp += '<tr><td></td><td colspan="4">\n' +
-                  feedback + '</td></tr>\n';
+                if(feedback != "" && feedback != null){
+                  courseTemp += '<tr><td></td><td colspan="4">\n' + feedback + '</td></tr>\n';
                 }
 
               }
@@ -112,7 +121,7 @@ exports.writePDF = function(options, cb) {
             }
 
           }
-
+          /* jshint ignore:end */
           userTemp  = userTemp.slice(0,-4);
           userTemp += '</div>\n'; //user-report
           //Not sure if there could be a race for the html variable.
@@ -131,14 +140,13 @@ exports.writePDF = function(options, cb) {
             console.log(html);
             var options = {
               filename: './reports.pdf',
-              format: 'Letter',
-              border: '10 mm',
+              format: 'A4',
+              border: '15 mm',
               footer: {
                 height: '20mm',
-                contents: '<div class="footer">' +
-                'Bi-weekly report compiled by Kitsong.' +
-                '</div>'
+                contents: '<div class="footer"></div>'
               }
+
             };
 
             //Create PDF from html string
@@ -146,10 +154,10 @@ exports.writePDF = function(options, cb) {
               if (err) {
                 return cb(err);
               }
-
-              cb(null, result);
+              cb(null, result); //Improve here
             });
           }
+
         });
     }
   });

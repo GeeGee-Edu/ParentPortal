@@ -23,6 +23,10 @@ module.exports = {
       type: 'string'
     },
 
+    hidden: {
+      type: 'int'
+    },
+
     course: {
       model: 'course',
       columnName: 'courseid'
