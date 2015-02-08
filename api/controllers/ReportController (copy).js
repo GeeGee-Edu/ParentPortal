@@ -74,7 +74,7 @@ module.exports = {
               '<p style="text-align:right">'+ date + '</p>\n' +
               '<h2>Interim Academic Report</h2>\n' +
               '<p style="text-align:left">' +
-	      'This is an interim report on individual activities done recently. This report does not necessarily reflect a ' +
+	      'This is an interim report on individual activities done recently. This report does not necessarily reflect a '
               'summative assessment and should not be used for promotion purposes.</p></div>\n';
 
             /**
@@ -86,19 +86,13 @@ module.exports = {
               var courseTemp = "";
               var hasData = false; //No need to add blank courses
 
-              courseTemp += '<div class="course">\n';
-/*              '<h2>' + data.courses[i].fullname + '</h2>\n';
-*/
+              courseTemp += '<div class="course">\n'+
+              '<h2>' + data.courses[i].fullname + '</h2>\n';
               courseTemp += '<table>\n' +
-              '<thead>\n' +
-/*	      '<tr>\n<th colspan="5">' +
-	      data.courses[i].fullname + '</th>\n</tr>\n' +
-*/
-              '<tr>\n<th style="width: 7%;">Date</th>\n'+
+              '<thead>\n<tr>\n' +
+              '<th style="width: 7%;">Date</th>\n'+
               '<th style="width: 25%;">Activity</th>\n'+
-              '<th style="width: 54%;">' +
-	      data.courses[i].fullname +
-	      '</th>\n' +
+              '<th style="width: 54%;">Description</th>\n' +
               '<th style="width: 7%;">Mark</th>\n'+
               '<th style="width: 7%;">Out of</th>' +
               '</tr>\n</thead>\n<tbody>\n';
@@ -164,12 +158,13 @@ module.exports = {
               var options = {
                 filename: './reports.pdf',
                 format: 'A4',
-                border: '15 mm',
-                footer: {
+                border: '10 mm',
+  /*              footer: {
                   height: '20mm',
-                  contents: '<div class="footer"></div>'
-                }
-
+                  contents: '<div class="footer">' +
+                  'Bi-weekly report compiled by Kitsong.' +
+                  '</div>'
+                }*/
               };
 
               //Create PDF from html string

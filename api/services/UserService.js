@@ -53,7 +53,8 @@ exports.getCourseGrades = function(options, cb) {
     Grade.find({
       where: {
         user: user.id
-      }
+      },
+      sort: 'timemodified'	
     }).populate('item').exec(
       function(err, gs) {
         if (err) {

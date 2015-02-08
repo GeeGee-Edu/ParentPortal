@@ -3,23 +3,31 @@
 <head>
 <style>
 h2 {
-  text-align: center;
+  text-align: left;
+  font: 15px/1.2  Arial, sans-serif;
+  font-weight: bold;
 }
 .user-report {
   page-break-after: always;
+  page-break-before: left;
 }
 table {
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   color: #4a4a4d;
-  width: 100%;
-  font: 13px/1.2 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font: 13px/1.2 Arial, sans-serif;
 }
 
 th,td {
-  padding: 5px 5px;
+  padding: 3px 3px;
   vertical-align: middle;
+  text-align: left;
   word-wrap: break-word;
+}
+
+th {
+  vertical-align: bottom;
 }
 
 thead {
@@ -31,11 +39,11 @@ thead {
 }
 
 th:first-child {
-  border-top-left-radius: 5px;
+  
 }
 
 th:last-child {
-  border-top-right-radius: 5px;
+  ;
 }
 
 td {
@@ -49,19 +57,16 @@ td:first-child {
 
 .header {
   display: block;
-  text-align: center;
   vertical-align: middle;
-  font-size: 25px;
-  border: 2px solid black;
-  height: 120px;
-  padding: 10px;
+    font: 15px/1.2  Arial, sans-serif, bold;
+  padding: 5px;
+  width: 100%;
 }
 
 .footer {
   display: block;
   text-align: center;
   font-size: 15px;
-  border-top: 2px solid black;
   padding: 10px;
 }
 
@@ -72,9 +77,7 @@ td:first-child {
 }
 
 .header img {
-  vertical-align: middle;
-  float:left;
-  height: 100px;
+   width:100%;
 }
 
 hr {
