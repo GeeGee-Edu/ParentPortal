@@ -8,9 +8,19 @@
 
 <div class="pure-g" ng-app="reportApp" ng-controller="ReportController">
   <div class="pure-u-1">
+    <form class="pure-form" action="/report/pdf" method="GET">
+      <input name="cohort" placeholder="Cohort ID">
+      From: <input type="date" name="dateFrom">
+      Until: <input type="date" name="dateTo">
+       <input type="range" name="points" min="0" max="10">
+      <button type="submit" class="pure-button">Generate PDF Report</a>
+    </form>
+  </div>
+  <hr>
+  <div class="pure-u-1">
     <form class="pure-form">
       <input ng-model="studentName" placeholder="Name">
-      <button type="submit" class="pure-button pure-button-primary" ng-click="newReport(studentName)">Generate Report</button>
+      <button type="submit" class="pure-button pure-button-primary" ng-click="newReport(studentName)">View Report</button>
     </form>
   </div>
   <div class="pure-g">

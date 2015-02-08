@@ -4,7 +4,7 @@
  * @description :: Server-side logic for managing Reports
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
-/* global PDFReport */
+/* global Report */
 module.exports = {
 
   /**
@@ -16,28 +16,52 @@ module.exports = {
   },
 
   /**
-   * Generate a pdf Report.
+   * Generate html Report.
    *
    * N.B. query.cohort required.
    *
    */
-  /* global UserService */
-  pdf: function(req, res) {
+  html: function(req, res) {
     'use strict';
+    console.log('---\nRequested Cohort ID: ' + req.param('cohort'));
 
-
-    console.log('---\nRequested Cohort ID: ' + req.query.cohort);
-
-    PDFReport.writePDF({cohort: req.query.cohort}, function(err, result){
+    Report.generateHTML({cohort: req.param('cohort')}, function(err, html){
       if(err){
         console.log(err);
         res.send(err);
       }
 
-      res.send('done\n' + result);
       console.log('DONE\n---');
+      return res.send(html);
+    });
 
+  },
 
+  pdf: function(req, res){
+    'use strict';
+
+    console.log(req.param('cohort'));
+
+    var page = require('phantom');
+
+    page.create(function(ph){
+      ph.createPage(function(page) {
+        page.open('http://localhost:1337/report/html?cohort=' +
+          req.param('cohort'), function(status) {
+            console.log(status);
+
+            page.set('paperSize', {
+              format: 'A4',
+              orientation: 'portrait',
+              margin: '1cm'
+            });
+
+            page.render('report.pdf', function(){
+              res.download('report.pdf', 'file:///report.pdf');
+              ph.exit();
+            });
+          });
+      });
     });
 
   },

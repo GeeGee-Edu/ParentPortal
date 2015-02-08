@@ -19,13 +19,13 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-sails-linker": "^0.10.1",
     "grunt-sync": "*",
-    "html-pdf": "*",
     "include-all": "*",
     "rc": "*",
     "sails": "^0.10.5",
     "sails-disk": "*",
     "sails-mongo": "*",
-    "sails-mysql": "^0.10.11"
+    "sails-mysql": "^0.10.11",
+    "phantomjs": "~1.9.15"
   },
   "scripts": {
     "start": "node app.js",

@@ -3,7 +3,7 @@
  *
  */
 /* global UserService */
-exports.writePDF = function(options, cb) {
+exports.generateHTML = function(options, cb) {
   'use strict';
 
   //Build up an html file to render
@@ -135,26 +135,7 @@ exports.writePDF = function(options, cb) {
            * Are we ready to compile the pdf yet?
            */
           if (completedUser === enrolled.length) {
-            html += '</body>\n</html>';
-            var pdf = require('html-pdf');
-            var options = {
-              filename: './reports.pdf',
-              format: 'A4',
-              border: '15 mm',
-              footer: {
-                height: '20mm',
-                contents: '<div class="footer"></div>'
-              }
-
-            };
-
-            //Create PDF from html string
-            pdf.create(html, options).toFile(function(err, result) {
-              if (err) {
-                return cb(err);
-              }
-              cb(null, result); //Improve here
-            });
+            cb(null, html + '</body>\n</html>');
           }
 
         });
