@@ -44,8 +44,24 @@ module.exports.connections = {
     adapter: 'sails-mysql',
     host: 'demo.geegee.co.za',
     user: 'moodle',
-    password: 'gark452',
+    password: 'moodle',
     database: 'moodle'
+  },
+
+  geegeeKitsServer: {
+    adapter: 'sails-mysql',
+    host: 'demo.geegee.co.za',
+    user: 'moodle',
+    password: 'moodle',
+    database: 'moodleTest'
+  },
+
+  localServer: {
+    adapter: 'sails-mysql',
+    host: 'localhost',
+    user: 'moodle',
+    password: 'moodle',
+    database: 'moodleTest'
   },
 
   kitsongServer: {

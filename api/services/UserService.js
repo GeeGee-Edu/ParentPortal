@@ -19,7 +19,6 @@ exports.getCourseGrades = function(options, cb) {
     var grades;
 
     user = user[0];
-    console.log('Found : ' + user.fullname() + '\n');
 
     /**
      * Fetch courses for this user
@@ -32,13 +31,10 @@ exports.getCourseGrades = function(options, cb) {
       }
 
       courses = cs;
-      console.log('Courses found : ' + courses.length);
-
       /**
        * Check if we're ready to return
        */
       if (grades) {
-        console.log('Done.\n---');
         return cb(null, {
           user: user,
           courses: courses,
@@ -54,7 +50,7 @@ exports.getCourseGrades = function(options, cb) {
       where: {
         user: user.id
       },
-      sort: 'timemodified'	
+      sort: 'timemodified'
     }).populate('item').exec(
       function(err, gs) {
         if (err) {
@@ -62,13 +58,11 @@ exports.getCourseGrades = function(options, cb) {
         }
 
         grades = gs;
-        console.log('Grades found : ' + grades.length);
 
         /**
          * Check if we're ready to return
          */
         if (courses) {
-          console.log('Done.\n---');
           return cb(null, {
             user: user,
             courses: courses,

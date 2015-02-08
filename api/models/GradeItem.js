@@ -23,6 +23,10 @@ module.exports = {
       type: 'string'
     },
 
+    grademax: {
+      type: 'int'
+    },
+
     hidden: {
       type: 'int'
     },

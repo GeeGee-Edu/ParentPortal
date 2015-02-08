@@ -25,8 +25,8 @@ module.exports = {
   pdf: function(req, res) {
     'use strict';
 
-    console.log('\n---');
-    console.log('Requested Cohort ID: ' + req.query.cohort);
+
+    console.log('---\nRequested Cohort ID: ' + req.query.cohort);
 
     PDFReport.writePDF({cohort: req.query.cohort}, function(err, result){
       if(err){
@@ -35,6 +35,9 @@ module.exports = {
       }
 
       res.send('done\n' + result);
+      console.log('DONE\n---');
+
+
     });
 
   },

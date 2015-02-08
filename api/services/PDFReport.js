@@ -25,8 +25,6 @@ exports.writePDF = function(options, cb) {
     var completedUser = 0;
 
     for (var x = 0; x < enrolled.length; x++) {
-      console.log(enrolled[x]);
-
       UserService.getCourseGrades({
           id: enrolled[x].user.id
         },
@@ -66,8 +64,7 @@ exports.writePDF = function(options, cb) {
             courseTemp += '<div class="course">\n';
 /*              '<h2>' + data.courses[i].fullname + '</h2>\n';
 */
-            courseTemp += '<table>\n' +
-            '<thead>\n' +
+            courseTemp += '<table>\n<thead>\n' +
 /*        '<tr>\n<th colspan="5">' +
       data.courses[i].fullname + '</th>\n</tr>\n' +
 */
@@ -105,8 +102,8 @@ exports.writePDF = function(options, cb) {
                   '<td>' + data.grades[j].date() + '</td>\n' +
                   '<td>' + data.grades[j].item.itemname + '</strong></td>\n' +
                   '<td>' + desc + '</td>\n' +
-                  '<td style="text-align: center;">' + Math.round(data.grades[j].finalgrade) + '</td>\n' +
-                  '<td style="text-align: center;">' + Math.round(data.grades[j].rawgrademax) + '</td></tr>\n';
+                  '<td style="text-align: center;">' + Math.round(data.grades[j].finalgrade*10)/10 + '</td>\n' +
+                  '<td style="text-align: center;">' + Math.round(data.grades[j].item.grademax) + '</td></tr>\n';
 
                 var feedback = data.grades[j].feedback;
                 if(feedback != "" && feedback != null){
@@ -117,13 +114,16 @@ exports.writePDF = function(options, cb) {
             }
             courseTemp += '</tbody>\n</table>\n</div>'; //course
             if (hasData) {
-              userTemp += courseTemp + '<hr>';
+              userTemp += courseTemp + '<br>';
             }
 
           }
           /* jshint ignore:end */
           userTemp  = userTemp.slice(0,-4);
           userTemp += '</div>\n'; //user-report
+
+          //Add page 8 feb hack
+          userTemp += '<div class="page-break"></div>';
           //Not sure if there could be a race for the html variable.
           if(userHasData){
             html += userTemp;
@@ -137,7 +137,6 @@ exports.writePDF = function(options, cb) {
           if (completedUser === enrolled.length) {
             html += '</body>\n</html>';
             var pdf = require('html-pdf');
-            console.log(html);
             var options = {
               filename: './reports.pdf',
               format: 'A4',

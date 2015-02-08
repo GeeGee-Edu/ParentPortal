@@ -20,7 +20,7 @@ module.exports.models = {
   * connections (see `config/connections.js`)                                *
   *                                                                          *
   ***************************************************************************/
-  connection: 'kitsongServer',
+  connection: 'localServer',
 
   /***************************************************************************
   *                                                                          *
