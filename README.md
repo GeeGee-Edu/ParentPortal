@@ -32,7 +32,7 @@ Run `sails lift` to start the web server and access it on [http://localhost:1337
 
 # Generating Report PDFs
 
-Dad: I have not written a nice web interface for this. So you will have to use some nerd-fu to get these reports.
+I have not written a nice web interface for this. So you will have to use some nerd-fu to get these reports.
 
 Type in the URL as follows. `http://localhost:1337/report/pdf?id=` followed by the id number of the cohort you want.
 
