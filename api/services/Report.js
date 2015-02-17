@@ -92,8 +92,6 @@ exports.generateHTML = function(options, cb) {
                 hasData = true;
                 userHasData = true;
 
-
-
                 var desc = data.grades[j].item.iteminfo;
                 if(desc == null){
                   desc = "";

@@ -1,20 +1,44 @@
 var path = require('path');
 var Yadda = require('yadda');
+var should = require('should');
+var Sails = require('sails/lib/app');
+var app = Sails();
+
 Yadda.plugins.mocha.StepLevelPlugin.init();
 
-new Yadda.FeatureFileSearch('test/features').each(function(file) {
+before(function(done) {
+    // Lift Sails and store the app reference
+    app.lift({
+        globals: true,
+        models: {
+            connection: 'geegeeServer'
+        }
+    }, function() {
+        done();
+    });
+});
 
-    featureFile(file, function(feature) {
+it('--- BDD Tests (via Yadda) ---', function(done){
+    new Yadda.FeatureFileSearch('test/features').each(function(file) {
 
-        var libraries = require_feature_libraries(feature);
-        var yadda = Yadda.createInstance(libraries);
+        featureFile(file, function(feature) {
 
-        scenarios(feature.scenarios, function(scenario) {
-            steps(scenario.steps, function(step, done) {
-                yadda.run(step, done);
+            var libraries = require_feature_libraries(feature);
+            var yadda = Yadda.createInstance(libraries, {app: app});
+
+            scenarios(feature.scenarios, function(scenario) {
+                steps(scenario.steps, function(step, done) {
+                    yadda.run(step, done);
+                });
             });
         });
     });
+    done();
+});
+// After Function
+after(function(done) {
+
+    app.lower(done);
 });
 
 function require_feature_libraries(feature) {
@@ -24,4 +48,17 @@ function require_feature_libraries(feature) {
 function require_library(libraries, library) {
     return libraries.concat(require('./lib/' + library + '-steps'));
 }
+
+
+
+// describe.only('Cohort', function() {
+//     describe('id 1', function() {
+//         it('should have members', function (done) {
+//             CohortMember.find().limit(1).exec(function(err, member) {
+//                 member.should.be.ok;
+//                 done();
+//             });
+//         });
+//     });
+// });
 

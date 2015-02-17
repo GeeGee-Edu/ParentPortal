@@ -21,18 +21,20 @@
     "grunt-sails-linker": "^0.10.1",
     "grunt-sync": "*",
     "include-all": "*",
+    "phantom": "^0.7.2",
     "phantomjs": "~1.9.15",
     "rc": "^0.6.0",
     "sails": "^0.10.5",
     "sails-disk": "*",
     "sails-mongo": "*",
     "sails-mysql": "^0.10.11",
+    "should": "^5.0.0",
     "yadda": "^0.11.5"
   },
   "scripts": {
     "start": "node app.js",
     "debug": "node debug app.js",
-    "test": "PORT=9999 NODE_ENV=test mocha -R spec -b --recursive"
+    "test": "istanbul test _mocha -- --reporter spec test/runtests.js"
   },
   "main": "app.js",
   "repository": {
