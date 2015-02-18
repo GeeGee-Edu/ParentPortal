@@ -25,8 +25,9 @@ before(function(done) {
     // });
   });
 });
+
 // Global after hook
 after(function(done) {
   console.log(); // Skip a line before displaying Sails lowering logs
-  sails.lower(done);
+  Sails.lower(done);
 });

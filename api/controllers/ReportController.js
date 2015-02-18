@@ -23,15 +23,12 @@ module.exports = {
    */
   html: function(req, res) {
     'use strict';
-    console.log('---\nRequested Cohort ID: ' + req.param('cohort'));
 
     Report.generateHTML({cohort: req.param('cohort')}, function(err, html){
       if(err){
-        console.log(err);
         res.send(err);
       }
 
-      console.log('DONE\n---');
       return res.send(html);
     });
 
@@ -40,15 +37,12 @@ module.exports = {
   pdf: function(req, res){
     'use strict';
 
-    console.log(req.param('cohort'));
-
     var page = require('phantom');
 
     page.create(function(ph){
       ph.createPage(function(page) {
         page.open('http://localhost:1337/report/html?cohort=' +
-          req.param('cohort'), function(status) {
-            console.log(status);
+          req.param('cohort'), function() {
 
             page.set('paperSize', {
               format: 'A4',
@@ -79,9 +73,6 @@ module.exports = {
   /* global UserService */
   user: function(req, res) {
     'use strict';
-
-    console.log('\n---');
-    console.log('Requested id: ' + req.query.id);
 
     UserService.data({
       id: req.query.id
