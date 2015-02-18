@@ -3,7 +3,7 @@
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{fancyhdr}
 \usepackage{geometry}
- \geometry{
+\geometry{
  a4paper,
  total={210mm,297mm},
  left=10mm,
@@ -11,21 +11,42 @@
  top=20mm,
  bottom=20mm,
  }
-
+\usepackage{caption}
+\captionsetup{labelformat=empty}
 \graphicspath{ {assets/images/} }
 
-% HEADER
-\pagestyle{fancy}
-\fancyhf{}
-\rhead{Date: \today}
-\lhead{\section}
-\renewcommand{\headrulewidth}{2pt}
-\chead{\rule{360pt}{70pt}} % instead of
-\chead{\includegraphics[height=2.5cm]{logo.png}}
-\setlength\headheight{74.1pt}
+% HEADER and FOOTER
+\fancypagestyle{firststyle}
+{
+  \fancyhf{}
+  \fancyhead{}
+  \fancyfoot{}
+  % HEADER
+  \fancyhead[L]{\uppercase{\rightmark}}
+  \fancyhead[C]{\includegraphics[height=2.5cm]{logo.png}}
+  \fancyhead[R]{\uppercase{\today}}
+  \setlength\headheight{74.1pt}
+  \renewcommand{\headrulewidth}{1pt}
 
-% FOOTER
-\renewcommand{\footrulewidth}{1pt}
+  % FOOTER
+  \fancyfoot[C]{\footnotesize Page \thepage}
+  \renewcommand{\footrulewidth}{1pt}
+}
+
+\fancypagestyle{otherstyle}
+{
+  \fancyhf{}
+  \fancyhead{}
+  \fancyfoot{}
+  \fancyhead[L]{\uppercase{\rightmark}}
+  \fancyhead[R]{\uppercase{\today}}
+  \renewcommand{\headrulewidth}{1pt}
+
+  \fancyfoot[C]{\footnotesize Page \thepage}
+  \renewcommand{\footrulewidth}{1pt}
+}
+
+\pagestyle{otherstyle}
 
 \begin{document}
 

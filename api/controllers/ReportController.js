@@ -18,6 +18,9 @@ module.exports = {
   pdf: function(req, res) {
     'use strict';
 
+    var headingColour = 'C0C0C0';
+    var rowColour = '9B9B9B';
+
     //Build up a tex file
     var fs = require('fs');
     var tex = fs.readFileSync('./views/latex/layout.tex', 'utf8');
@@ -33,7 +36,6 @@ module.exports = {
       if (err) {
         return res.send(400, err);
       }
-      console.log(enrolled);
 
       var completedUsers = 0;
       for (var x = 0; x < enrolled.length; x++) {
@@ -47,17 +49,21 @@ module.exports = {
             var userHasData = false; //We dont want to print out a blank report.
 
             var userTex = '\\section*{' + data.user.fullname() + '}\n';
+            userTex += '\\setcounter{page}{1}\n';
+            userTex += '\\thispagestyle{firststyle}\n';
 
-            /* jshint ignore:start */
             for (var i = 0; i < data.courses.length; i++) {
               var courseTex = '';
               var hasData = false;
 
-              courseTex += '\\subsection*{' + data.courses[i].fullname + '}\n';
-              courseTex += '\\begin{table}[h]\n';
-              courseTex += '\\begin{tabular}{ | p{1.5cm} | p{6cm} | p{6cm} | p{1.5cm} | p{1.5cm} |}\n'; //16.6
-              courseTex += '\\rowcolor[HTML]{C0C0C0} \\hline\n';
-              courseTex += '\\textbf{Date} & \\textbf{Activity} & \\textbf{Description} & \\textbf{Mark} & \\textbf{Out Of} \\\\ \\hline \n';
+              courseTex += '\\begin{table}[!htc]\n';
+              courseTex += '\\caption*{' + data.courses[i].fullname + '}';
+              courseTex += '\\begin{tabular}' + //16.6
+                '{ | p{1.5cm} | p{4.5cm} | p{7.5cm} | p{1.4cm} | p{1.4cm} |}\n';
+              courseTex += '\\rowcolor[HTML]{' + headingColour + '} \\hline\n';
+              courseTex += '\\textbf{Date} & \\textbf{Activity} & ' +
+                '\\textbf{Description} & \\textbf{Mark} & ' +
+                '\\textbf{Out Of} \\\\ \\hline \n';
 
               for (var j = 0; j < data.grades.length; j++) {
                 if (data.grades[j].item.course === data.courses[i].id &&
@@ -68,35 +74,56 @@ module.exports = {
                   hasData = true;
                   userHasData = true;
 
+                  // Preprocess to escape TeX special chars (\ & _ % $ # ~ ^)
+                  var removeChars = function(str) {
+                    var chars = ['\_', '\%', '\#', '\'', '\"'];
+                    for (var i = 0; i < chars.length; i++) {
+                      str = String(str).replace(new RegExp(chars[i], 'g'),
+                        '\\' + chars[i]);
+                    }
+                    String(str).replace(/\\/g, '\\textbackslash{}');
+                    String(str).replace(/\^/g, '\\textasciicircum{}');
+                    String(str).replace(/\~/g, '\\textasciitilde{}');
+
+                    return str;
+                  };
+
+                  var date = data.grades[j].date();
+                  var name = data.grades[j].item.itemname;
                   var desc = data.grades[j].item.iteminfo;
                   if (desc === null) {
                     desc = '';
                   }
-                  courseTex += '\\rowcolor[HTML]{9B9B9B}';
-                  courseTex += data.grades[j].date() + ' & ';
-                  courseTex += data.grades[j].item.itemname + ' & ';
-                  courseTex += desc + ' & ';
-                  courseTex += Math.round(data.grades[j].finalgrade * 10) / 10 + ' & ';
-                  courseTex += Math.round(data.grades[j].item.grademax) + ' \\\\ \\hline \n';
-
+                  var grade = Math.round(data.grades[j].finalgrade * 10) / 10;
+                  var outOf = Math.round(data.grades[j].item.grademax);
                   var feedback = data.grades[j].feedback;
-                  if (feedback != "" && feedback != null) {
-                    courseTex += ' & \\multicolumn{4}{m{12cm}|}{' + feedback + '}  \\\\ \\hline \n';
-                  }
 
+                  courseTex += '\\rowcolor[HTML]{' + rowColour + '}';
+                  courseTex += removeChars(date) + ' & ';
+                  courseTex += removeChars(name) + ' & ';
+                  courseTex += removeChars(desc) + ' & ';
+                  courseTex += '\\multicolumn{1}{c|}{' +
+                    removeChars(grade) + '} & ';
+                  courseTex += '\\multicolumn{1}{c|}{' +
+                    removeChars(outOf) + '} \\\\ \\hline \n';
+
+
+                  if (feedback !== '' && feedback !== null) {
+                    courseTex += ' & \\multicolumn{4}{m{12cm}|}{' +
+                      removeChars(feedback) + '}  \\\\ \\hline \n';
+                  }
                 }
               }
               courseTex += '\\end{tabular}\n';
-              courseTex += '\\end{table}\n'
+              courseTex += '\\end{table}\n';
 
               if (hasData) {
                 userTex += courseTex;
               }
             }
-            /* jshint ignore:end */
 
             if (userHasData) {
-              tex += userTex;
+              tex += userTex + '\n \\cleardoublepage';
             }
 
             completedUsers += 1;
@@ -105,12 +132,25 @@ module.exports = {
             if (completedUsers === enrolled.length) {
 
               tex += '\\end{document}';
+              var filename = 'report/report'; ///date?
+              // Write the tex file
+              fs.writeFile(filename + '.tex', tex, function(err) {
+                if (err) {
+                  res.send(400, err);
+                }
 
-              latex.createPDF({
-                tex: tex,
-                filename: 'report'
-              }, function() {
-                res.download('report.pdf', 'file:///report.pdf');
+
+                // Now convert to pdf
+                latex.createPDF({
+                  tex: tex,
+                  filename: filename
+                }, function(err) {
+                  if (err) {
+                    console.log(err);
+                  }
+                  res.download(filename + '.pdf',
+                    'file:///' + filename + '.pdf');
+                });
               });
             }
           });
@@ -135,5 +175,4 @@ module.exports = {
       return res.json(courses);
     });
   }
-
 };

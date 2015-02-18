@@ -59,14 +59,14 @@ module.exports.connections = {
   localServer: {
     adapter: 'sails-mysql',
     host: 'localhost',
-    user: 'moodle',
-    password: 'moodle',
+    user: 'root',
+    password: 'gark452',
     database: 'moodleTest'
   },
 
   localKenServer: {
     adapter: 'sails-mysql',
-    host: 'localhost',
+    host: '192.168.1.3',
     user: 'root',
     password: 'vu7jgu',
     database: 'moodle'
