@@ -64,6 +64,14 @@ module.exports.connections = {
     database: 'moodleTest'
   },
 
+  localKenServer: {
+    adapter: 'sails-mysql',
+    host: 'localhost',
+    user: 'root',
+    password: 'vu7jgu',
+    database: 'moodle'
+  },
+
   kitsongServer: {
     adapter: 'sails-mysql',
     host: '192.168.11.7',
