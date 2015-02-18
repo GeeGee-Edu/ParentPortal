@@ -1,23 +1,28 @@
 <html>
 <head>
 <style>
-.page-break {
-  display: block;
-  page-break-after: always;
-}
-
 h2 {
   text-align: left;
   font: 15px/1.2  Arial, sans-serif;
   font-weight: bold;
 }
+
 .user-report {
-  page-break-after: always;
-  page-break-before: left;
+  display: block;
+  /*page-break-before: always;*/
+  page-break-before: right;
 }
 
-table, thead, th, td {
-  page-break-inside: avoid !important;
+table{
+    /*page-break-inside: avoid; !important; <-- doesn't work*/
+    display:inline-block;
+}
+
+table:after
+ {
+    display:block;
+    height:0px;
+    visibility: hidden;
 }
 
 table {

@@ -24,8 +24,10 @@ exports.getCourseGrades = function(options, cb) {
      * Fetch courses for this user
      */
     User.getCourses({
+      
       id: user.id
-    }, function(err, cs) {
+    },
+    function(err, cs) {
       if (err) {
         return cb(err);
       }
