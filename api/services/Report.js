@@ -47,9 +47,9 @@ exports.generateHTML = function(options, cb) {
             '<img src="http://localhost:1337/images/drongo2w.svg">\n' +
             '<p style="text-align:right">' + data.user.fullname() + '</p>\n' +
             '<p style="text-align:right">'+ date + '</p>\n' +
-            '<h2>Interim Academic Report</h2>\n' +
+            '<h2>Interim Academic Feedback</h2>\n' +
             '<p style="text-align:left">' +
-      'This is an interim report on individual activities done recently. This report does not necessarily reflect a ' +
+      'This document provides interim feedback to parents on individual activities done recently. This feedback does not necessarily reflect a ' +
             'summative assessment and should not be used for promotion purposes.</p></div>\n';
 
           /**
@@ -65,13 +65,16 @@ exports.generateHTML = function(options, cb) {
 /*              '<h2>' + data.courses[i].fullname + '</h2>\n';
 */
             courseTemp += '<table>\n<thead>\n' +
-/*        '<tr>\n<th colspan="5">' +
+        '<tr>\n<th colspan="5">' +
       data.courses[i].fullname + '</th>\n</tr>\n' +
-*/
+
             '<tr>\n<th style="width: 7%;">Date</th>\n'+
             '<th style="width: 25%;">Activity</th>\n'+
             '<th style="width: 54%;">' +
+	    'Description' +
+/*
       data.courses[i].fullname +
+*/
       '</th>\n' +
             '<th style="width: 7%;">Mark</th>\n'+
             '<th style="width: 7%;">Out of</th>' +
