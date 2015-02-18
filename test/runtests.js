@@ -1,21 +1,37 @@
 var path = require('path');
 var Yadda = require('yadda');
-var should = require('should');
-var Sails = require('sails/lib/app');
-var app = Sails();
+var should = require('should'),
+    CohortMember = require('../../api/models/CohortMember'),
+    Waterline = require('waterline'),
+    diskAdapter = require('sails-disk');
+var app;
 
 Yadda.plugins.mocha.StepLevelPlugin.init();
 
 before(function(done) {
-    // Lift Sails and store the app reference
-    app.lift({
-        globals: true,
-        models: {
-            connection: 'geegeeServer'
+    // Create a model using sails-disk
+    MovieModel.adapter = 'disk';
+    Movie = Waterline.Collection.extend(MovieModel);
+    new Movie({ adapters: { disk: diskAdapter }}, function(err, collection) {
+        if (err) {
+            done(err);
         }
-    }, function() {
-        done();
+        else {
+            movieCollection = collection;
+            collection.create({ movieId: '1', name: 'The Godfather', releaseDate: new Date(), rating: 'R'})
+                .done(function(err, mockMovie) {
+                    if (err) {
+                        done(err);
+                    }
+                    else {
+                        movie = mockMovie;
+                        done();
+                    }
+                });
+        }
     });
+
+
 });
 
 it('--- BDD Tests (via Yadda) ---', function(done){
@@ -35,10 +51,19 @@ it('--- BDD Tests (via Yadda) ---', function(done){
     });
     done();
 });
-// After Function
-after(function(done) {
 
-    app.lower(done);
+/**
+ * Delete everything from sails-disk.  A clean HD is a happy HD.
+ */
+after(function(done) {
+    movieCollection.destroy().done(function(err) {
+        if (err) {
+            done(err);
+        }
+        else {
+            done();
+        }
+    });
 });
 
 function require_feature_libraries(feature) {
