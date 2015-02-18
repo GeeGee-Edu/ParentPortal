@@ -4,7 +4,6 @@
  * @description :: Server-side logic for managing Reports
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
-/* global Report */
 module.exports = {
 
   /**
@@ -12,76 +11,128 @@ module.exports = {
    */
   index: function(req, res) {
     'use strict';
+
     return res.view('report.ejs');
   },
 
-  /**
-   * Generate html Report.
-   *
-   * N.B. query.cohort required.
-   *
-   */
-  html: function(req, res) {
+  pdf: function(req, res) {
     'use strict';
 
-    Report.generateHTML({cohort: req.param('cohort')}, function(err, html){
-      if(err){
-        res.send(err);
+    //Build up a tex file
+    var fs = require('fs');
+    var tex = fs.readFileSync('./views/latex/layout.tex', 'utf8');
+
+    /**
+     * Generate reports for a specific cohort.
+     */
+    CohortMember.find({
+      where: {
+        cohort: req.query.cohortid
       }
+    }).populate('user').exec(function(err, enrolled) {
+      if (err) {
+        return res.send(400, err);
+      }
+      console.log(enrolled);
 
-      return res.send(html);
-    });
+      var completedUsers = 0;
+      for (var x = 0; x < enrolled.length; x++) {
+        User.getCourseGrades({
+            id: enrolled[x].user.id
+          },
+          function(err, data) {
+            if (err) {
+              return res.send(400, err);
+            }
+            var userHasData = false; //We dont want to print out a blank report.
 
-  },
+            var userTex = '\\section*{' + data.user.fullname() + '}\n';
 
-  pdf: function(req, res){
-    'use strict';
+            /* jshint ignore:start */
+            for (var i = 0; i < data.courses.length; i++) {
+              var courseTex = '';
+              var hasData = false;
 
-    var page = require('phantom');
+              courseTex += '\\subsection*{' + data.courses[i].fullname + '}\n';
+              courseTex += '\\begin{table}[h]\n';
+              courseTex += '\\begin{tabular}{ | p{1.5cm} | p{6cm} | p{6cm} | p{1.5cm} | p{1.5cm} |}\n'; //16.6
+              courseTex += '\\rowcolor[HTML]{C0C0C0} \\hline\n';
+              courseTex += '\\textbf{Date} & \\textbf{Activity} & \\textbf{Description} & \\textbf{Mark} & \\textbf{Out Of} \\\\ \\hline \n';
 
-    page.create(function(ph){
-      ph.createPage(function(page) {
-        page.open('http://localhost:1337/report/html?cohort=' +
-          req.param('cohort'), function() {
+              for (var j = 0; j < data.grades.length; j++) {
+                if (data.grades[j].item.course === data.courses[i].id &&
+                  data.grades[j].item.itemname !== null &&
+                  data.grades[j].usermodified !== null &&
+                  data.grades[j].item.hidden === 0) {
+                  //Found grade data
+                  hasData = true;
+                  userHasData = true;
 
-            page.set('paperSize', {
-              format: 'A4',
-              orientation: 'portrait',
-              margin: '1cm'
-            });
+                  var desc = data.grades[j].item.iteminfo;
+                  if (desc === null) {
+                    desc = '';
+                  }
+                  courseTex += '\\rowcolor[HTML]{9B9B9B}';
+                  courseTex += data.grades[j].date() + ' & ';
+                  courseTex += data.grades[j].item.itemname + ' & ';
+                  courseTex += desc + ' & ';
+                  courseTex += Math.round(data.grades[j].finalgrade * 10) / 10 + ' & ';
+                  courseTex += Math.round(data.grades[j].item.grademax) + ' \\\\ \\hline \n';
 
-            page.render('report.pdf', function(){
-              res.download('report.pdf', 'file:///report.pdf');
-              ph.exit();
-            });
+                  var feedback = data.grades[j].feedback;
+                  if (feedback != "" && feedback != null) {
+                    courseTex += ' & \\multicolumn{4}{m{12cm}|}{' + feedback + '}  \\\\ \\hline \n';
+                  }
+
+                }
+              }
+              courseTex += '\\end{tabular}\n';
+              courseTex += '\\end{table}\n'
+
+              if (hasData) {
+                userTex += courseTex;
+              }
+            }
+            /* jshint ignore:end */
+
+            if (userHasData) {
+              tex += userTex;
+            }
+
+            completedUsers += 1;
+
+            /* global latex */
+            if (completedUsers === enrolled.length) {
+
+              tex += '\\end{document}';
+
+              latex.createPDF({
+                tex: tex,
+                filename: 'report'
+              }, function() {
+                res.download('report.pdf', 'file:///report.pdf');
+              });
+            }
           });
-      });
+      }
     });
-
   },
 
   /**
    * Sends user's active courses with grades and feedback.
-   * !!!!
-   *  Set up Grade 10 - 12 Design Courses
-   * (BECKS)
    *
-   * !!!!
    * @param  {[type]} req
    * @param  {[type]} res
    */
-  /* global UserService */
   user: function(req, res) {
     'use strict';
 
-    UserService.data({
-      id: req.query.id
-    }, function(err, data) {
+    User.getCourses(req.query.id, function(err, courses) {
       if (err) {
         res.send(err);
       }
 
-      return res.json(data);
+      return res.json(courses);
     });
   }
 

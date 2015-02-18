@@ -1,0 +1,31 @@
+\documentclass[11pt,a4paper,openright]{book}
+\usepackage{graphicx}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={210mm,297mm},
+ left=10mm,
+ right=10mm,
+ top=20mm,
+ bottom=20mm,
+ }
+
+\graphicspath{ {assets/images/} }
+
+% HEADER
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Date: \today}
+\lhead{\section}
+\renewcommand{\headrulewidth}{2pt}
+\chead{\rule{360pt}{70pt}} % instead of
+\chead{\includegraphics[height=2.5cm]{logo.png}}
+\setlength\headheight{74.1pt}
+
+% FOOTER
+\renewcommand{\footrulewidth}{1pt}
+
+\begin{document}
+
