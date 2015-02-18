@@ -74,6 +74,12 @@ module.exports = {
             courses.push(cs[0]);
 
             if (courses.length === enrols.length) {
+
+              courses = courses.sort( function(a,b) {
+                return String(a.fullname) < String(b.fullname);
+              });
+
+
               return cb(null, courses);
             }
           });
