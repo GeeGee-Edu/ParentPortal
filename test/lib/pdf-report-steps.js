@@ -1,4 +1,4 @@
-var should = require('should');
+var should = require('chai').should();
 var English = require('yadda').localisation.English;
 var http = require('http');
 
@@ -6,21 +6,26 @@ module.exports = (function() {
 
   var library = English.library();
 
-  library.given("cohort 1 has members", function(next) {
-    var report = require('../../api/services/Report');
-    report.generateHTML({cohort: 6});
-
+  library.given("cohort has members", function(next) {
     this.app.models.cohortmember.find({
-      where: {cohort: 1}
+      where: {cohort: 1} //This cohort must have members
     }).limit(1).exec(function(err, member){
-
-      should(member).be.ok;
+      should.exist(member);
       next();
     });
   });
 
+  // library.given("cohort has no members", function(next) {
+  //   this.app.models.cohortmember.find({
+  //     where: {cohort: 1} //This cohort must not have members
+  //   }).limit(1).exec(function(err, member){
+  //     should.not.exist(member);
+  //     next();
+  //   });
+  // });
+
   library.when("an authorised user clicks generate report", function(next) {
-    http.get('http://localhost:1337/', function (res) {
+    http.get('http://localhost:1337/report', function (res) {
       res.statusCode.should.equal(200);
       next();
     });
@@ -28,8 +33,10 @@ module.exports = (function() {
 
 
   library.then("a PDF is downloaded", function(next) {
-
-    next();
+    http.get('http://localhost:1337/report/pdf?cohortid=1', function (res) {
+      res.statusCode.should.equal(200);
+      next();
+    });
   });
 
   return library;
