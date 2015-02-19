@@ -32,9 +32,7 @@
   "scripts": {
     "start": "node app.js",
     "debug": "node debug app.js",
-    "test": "istanbul test _mocha -- --reporter spec test",
-    "test-tdd": "mocha --reporter spec --recursive --timeout 10000 test/unit",
-    "test-bdd": "mocha --reporter spec --timeout 30000 test/bdd.js"
+    "test": "istanbul test _mocha -- --reporter spec --timeout 30000 test/runtests"
   },
   "main": "app.js",
   "repository": {
@@ -46,8 +44,12 @@
   "devDependencies": {
     "assert": "^1.3.0",
     "grunt-mocha-test": "^0.12.7",
+    "install": "^0.1.8",
     "istanbul": "^0.3.5",
     "mocha": "^2.1.0",
-    "sinon": "^1.12.2"
+    "npm": "^2.5.1",
+    "sails-memory": "^0.10.3",
+    "sinon": "^1.12.2",
+    "wolfpack": "^0.3.1"
   }
 }

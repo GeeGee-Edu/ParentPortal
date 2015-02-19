@@ -13,7 +13,7 @@ module.exports = {
     id: {
       type: 'integer',
       primaryKey: true,
-      required: true
+      autoIncrement: true
     },
 
     firstname: {
@@ -43,7 +43,6 @@ module.exports = {
     'use strict';
 
     User.findById(options.id, function(err, user) {
-
       if (err) {
         return cb(err);
       }
@@ -56,25 +55,25 @@ module.exports = {
        * Fetch courses for this user
        */
       User.getCourses({
-        id: user.id
-      },
-      function(err, cs) {
-        if (err) {
-          return cb(err);
-        }
+          id: user.id
+        },
+        function(err, cs) {
+          if (err) {
+            return cb(err);
+          }
 
-        courses = cs;
-        /**
-         * Check if we're ready to return
-         */
-        if (grades) {
-          return cb(null, {
-            user: user,
-            courses: courses,
-            grades: grades
-          });
-        }
-      });
+          courses = cs;
+          /**
+           * Check if we're ready to return
+           */
+          if (grades) {
+            return cb(null, {
+              user: user,
+              courses: courses,
+              grades: grades
+            });
+          }
+        });
 
       /**
        * Fetch all user's grades
@@ -124,7 +123,11 @@ module.exports = {
     }).populate('enrolment').exec(
       function(err, enrols) {
         if (err) {
-          return cb(err);
+          cb(err);
+        }
+
+        if (enrols.length === 0) {
+          cb(null, enrols);
         }
 
         /**
@@ -140,9 +143,10 @@ module.exports = {
 
             if (courses.length === enrols.length) {
 
-              courses = courses.sort( function(a,b) {
+              courses = courses.sort(function(a, b) {
                 return String(a.fullname) < String(b.fullname);
               });
+
 
               return cb(null, courses);
             }

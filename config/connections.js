@@ -28,9 +28,6 @@ module.exports.connections = {
   * Installed by default.                                                    *
   *                                                                          *
   ***************************************************************************/
-  localDiskDb: {
-    adapter: 'sails-disk'
-  },
 
   /***************************************************************************
   *                                                                          *
@@ -48,28 +45,12 @@ module.exports.connections = {
     database: 'moodle'
   },
 
-  geegeeKitsServer: {
-    adapter: 'sails-mysql',
-    host: 'demo.geegee.co.za',
-    user: 'moodle',
-    password: 'moodle',
-    database: 'moodleTest'
-  },
-
   localServer: {
     adapter: 'sails-mysql',
     host: 'localhost',
     user: 'root',
     password: 'gark452',
     database: 'moodleTest'
-  },
-
-  localKenServer: {
-    adapter: 'sails-mysql',
-    host: '192.168.1.3',
-    user: 'root',
-    password: 'vu7jgu',
-    database: 'moodle'
   },
 
   kitsongServer: {

@@ -42,6 +42,7 @@ module.exports = {
         User.getCourseGrades({
             id: enrolled[x].user.id
           },
+          /* jshint maxcomplexity : 10 */
           function(err, data) {
             if (err) {
               return res.send(400, err);

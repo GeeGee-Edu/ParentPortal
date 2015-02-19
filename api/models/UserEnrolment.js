@@ -15,11 +15,9 @@ module.exports = {
     id: {
       type: 'integer',
       primaryKey: true,
-      required: true
+      autoIncrement: true
     },
     user:      { model: 'user', columnName: 'userid' },
     enrolment: { model: 'enrolment', columnName: 'enrolid' }
   }
-
-
 };
