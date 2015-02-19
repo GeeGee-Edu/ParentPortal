@@ -132,24 +132,24 @@ module.exports = {
             if (completedUsers === enrolled.length) {
 
               tex += '\\end{document}';
-              var filename = 'report/report'; ///date?
+
+              var texfile = '.tmp/report.tex'; ///date?
               // Write the tex file
-              fs.writeFile(filename + '.tex', tex, function(err) {
+              fs.writeFile(texfile, tex, function(err) {
                 if (err) {
                   res.send(400, err);
                 }
 
-
                 // Now convert to pdf
                 latex.createPDF({
-                  tex: tex,
-                  filename: filename
+                  texfile: texfile,
+                  dir: 'report'
                 }, function(err) {
                   if (err) {
                     console.log(err);
                   }
-                  res.download(filename + '.pdf',
-                    'file:///' + filename + '.pdf');
+                  res.download('report/report.pdf',
+                    'file:///report.pdf');
                 });
               });
             }

@@ -144,12 +144,10 @@ module.exports = {
                 return String(a.fullname) < String(b.fullname);
               });
 
-
               return cb(null, courses);
             }
           });
         }
       });
   }
-
 };
