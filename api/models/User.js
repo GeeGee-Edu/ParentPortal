@@ -90,7 +90,6 @@ module.exports = {
           }
 
           grades = gs;
-
           /**
            * Check if we're ready to return
            */

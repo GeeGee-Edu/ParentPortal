@@ -19,6 +19,9 @@
 
 coverage
 report
+*.tex
+*.aux
+*.log
 
 ################################################
 # Local Configuration

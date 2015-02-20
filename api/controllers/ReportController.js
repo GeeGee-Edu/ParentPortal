@@ -70,7 +70,7 @@ module.exports = {
                 if (data.grades[j].item.course === data.courses[i].id &&
                   data.grades[j].item.itemname !== null &&
                   data.grades[j].usermodified !== null &&
-                  data.grades[j].item.hidden === 0) {
+                  data.grades[j].item.hidden == 0) { // jshint ignore:line
                   //Found grade data
                   hasData = true;
                   userHasData = true;
@@ -165,15 +165,15 @@ module.exports = {
    * @param  {[type]} req
    * @param  {[type]} res
    */
-  user: function(req, res) {
-    'use strict';
+  // user: function(req, res) {
+  //   'use strict';
 
-    User.getCourses(req.query.id, function(err, courses) {
-      if (err) {
-        res.send(err);
-      }
+  //   User.getCourses(req.query.id, function(err, courses) {
+  //     if (err) {
+  //       res.send(err);
+  //     }
 
-      return res.json(courses);
-    });
-  }
+  //     return res.json(courses);
+  //   });
+  // }
 };

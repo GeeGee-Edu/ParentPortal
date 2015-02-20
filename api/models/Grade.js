@@ -12,7 +12,7 @@ module.exports = {
     id: {
       type: 'integer',
       primaryKey: true,
-      required: true
+      autoIncrement: true
     },
 
     user: {
@@ -26,7 +26,7 @@ module.exports = {
     },
 
     finalgrade: {
-      type: 'integer'
+      type: 'int'
     },
 
     rawgrademax: {
@@ -39,6 +39,18 @@ module.exports = {
 
     timemodified: {
       type: 'int'
+    },
+
+    aggregationweight:{
+      type: 'int'
+    },
+
+    hidden: {
+      type: 'int'
+    },
+
+    feedback: {
+      type: 'string'
     },
 
     date: function () {
@@ -54,19 +66,6 @@ module.exports = {
         mm = '0' + mm;
       }
       return dd + '/' + mm;
-    },
-
-    aggregationweight:{
-      type: 'int'
-    },
-
-    hidden: {
-      type: 'int'
-    },
-
-    feedback: {
-      type: 'string'
     }
   }
-
 };

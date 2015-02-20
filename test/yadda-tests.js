@@ -2,23 +2,40 @@ var Yadda = require('yadda');
 
 Yadda.plugins.mocha.StepLevelPlugin.init();
 
-it('--- BDD Tests ---', function(done){
+before(function(done) {
+    Cohort.create({
+        name: 'Populated'
+    }).exec(function(err, cohort) {
+        CohortMember.create({
+            cohort: cohort,
+            user: 1
+        }).exec(function(err, cohortmember) {
+            done();
+        });
+    });
+});
 
-    new Yadda.FeatureFileSearch('test/features').each(function(file) {
+describe('Yadda', function() {
+    it('initialize yadda', function(done) {
 
-        featureFile(file, function(feature) {
+        new Yadda.FeatureFileSearch('test/features').each(function(file) {
 
-            var libraries = require_feature_libraries(feature);
-            var yadda = Yadda.createInstance(libraries, {app: app});
+            featureFile(file, function(feature) {
 
-            scenarios(feature.scenarios, function(scenario) {
-                steps(scenario.steps, function(step, done) {
-                    yadda.run(step, done);
+                var libraries = require_feature_libraries(feature);
+                var yadda = Yadda.createInstance(libraries, {
+                    app: app
+                });
+
+                scenarios(feature.scenarios, function(scenario) {
+                    steps(scenario.steps, function(step, done) {
+                        yadda.run(step, done);
+                    });
                 });
             });
         });
+        done();
     });
-    done();
 });
 
 function require_feature_libraries(feature) {

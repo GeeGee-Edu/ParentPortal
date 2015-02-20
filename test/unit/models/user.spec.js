@@ -10,19 +10,36 @@ before(function(done) {
       fullname: opts.fullname,
       shortname: opts.shortname
     }).exec(function(err, course) {
-
       Enrolment.create({
         course: course
       }).exec(function(err, enrolment) {
-
         UserEnrolment.create({
           user: opts.user,
           enrolment: enrolment
-        }).exec(function(err, res) {
-          tasks--;
-          if (tasks === 0) {
-            done();
-          }
+        }).exec(function(err, userenrol) {
+          GradeItem.create({
+            itemname: 'Item ' + opts.shortname,
+            iteminfo: opts.iteminfo,
+            grademax: 10,
+            hidden: 0,
+            course: course
+          }).exec(function(err, item) {
+            Grade.create({
+              user: opts.user,
+              item: item,
+              finalgrade: 5,
+              rawgrademax: 10,
+              usermodified: 100,
+              timemodified: Math.round(Math.random() * 1000),
+              hidden: 0,
+              feedback: 'Feedback'
+            }).exec(function(err, gradeitem) {
+              tasks--;
+              if (tasks === 0) {
+                done();
+              }
+            });
+          });
         });
       });
     });
@@ -32,16 +49,17 @@ before(function(done) {
     lastname: 'Foo',
     username: 'jfoo'
   }).exec(function(err, user) {
-
     enrolCourse({
       user: user,
       fullname: 'Course A',
-      shortname: 'A'
+      shortname: 'A',
+      iteminfo: null
     });
     enrolCourse({
       user: user,
       fullname: 'Course B',
-      shortname: 'B'
+      shortname: 'B',
+      iteminfo: 'Info'
     });
   });
 });
@@ -110,7 +128,7 @@ describe('User Model', function() {
         cache_courseGrades.courses.should.have.length.above(0); // jshint ignore:line
       });
 
-      it('should contain and grades', function() {
+      it('should contain grades', function() {
         cache_courseGrades.should.have.property('grades');
         cache_courseGrades.grades.should.have.length.above(0); // jshint ignore:line
       });

@@ -1,6 +1,7 @@
 var Sails = require('sails');
 
 before(function(done) {
+  console.log('Lifing Sails...');
   Sails.lift({
     log: {
       level: 'error'
@@ -16,17 +17,12 @@ before(function(done) {
     },
 
   }, function(err, sails) {
+    console.log('Sails Lifted!');
     app = sails;
-
-    // Global models
-    User = app.models.user;
-    UserEnrolment = app.models.userenrolment;
-    Enrolment = app.models.enrolment;
-    Course = app.models.course;
-
     done(err);
   });
 });
+
 
 /**
  * Models
@@ -47,6 +43,7 @@ require('../test/unit/services/latex.spec');
  * BDD
  */
 require('../test/yadda-tests');
+
 
 // Global after hook
 after(function(done) {
