@@ -29,6 +29,7 @@ before(function(done) {
  */
 describe("\n* Models", function() {
   require('../test/unit/models/user.spec');
+  require('../test/unit/models/cohort.spec');
 });
 
 
