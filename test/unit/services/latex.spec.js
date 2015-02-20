@@ -39,7 +39,7 @@ before(function(done) {
 });
 
 
-describe('PDFLatex Service', function(done) {
+describe('- Latex', function(done) {
 
   describe('given a valid latex file', function() {
 

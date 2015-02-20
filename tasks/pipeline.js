@@ -15,11 +15,7 @@
 // (if you're using LESS with the built-in default config, you'll want
 //  to change `assets/styles/importer.less` instead.)
 var cssFilesToInject = [
-  //Pure CSS framework ~29k
-  '/styles/pure/pure-min.css',
-  '/styles/pure/grids-responsive-min.css',
-  
-  // Other Styles
+  'vendor/**/*.css',
   'styles/**/*.css'
 ];
 
@@ -32,7 +28,7 @@ var jsFilesToInject = [
   'js/dependencies/sails.io.js',
 
   // Dependencies like jQuery, or Angular are brought in here
-  'js/dependencies/**/*.js',
+  'vendor/**/*.js',
 
   // All of the rest of your client-side js files
   // will be injected here in no particular order.

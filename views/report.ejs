@@ -8,12 +8,24 @@
 
 <div class="pure-g" ng-app="reportApp" ng-controller="ReportController">
   <div class="pure-u-1">
-    <form class="pure-form" action="/report/pdf" method="GET">
+
+
+    <form class="pure-form-stacked" action="/report/pdf" method="GET">
+      <% if (typeof data!== 'undefined') { %>
+        <div id="error-alert" class="pure-alert pure-alert-error pure-u-1-4" ng-hide="data">
+          <%= data %>
+        </div>
+      <% } %>
       <input name="cohortid" placeholder="Cohort ID">
-      From: <input type="date" name="dateFrom">
-      Until: <input type="date" name="dateTo">
-       <input type="range" name="points" min="0" max="10">
-      <button type="submit" class="pure-button">Generate PDF Report</a>
+      From: <input placeholder="28/03/15" type="date" name="timefrom">
+      Until: <input placeholder="28/03/19" type="date" name="timeuntil">
+      <button type="submit" class="pure-button">Generate PDF Report</button><br>
+
+      <script type="text/javascript">
+      setTimeout(function() {
+        $("#error-alert").remove();
+      }, 3000);
+      </script>
     </form>
   </div>
   <hr>

@@ -27,22 +27,31 @@ before(function(done) {
 /**
  * Models
  */
-require('../test/unit/models/user.spec');
+describe("\n* Models", function() {
+  require('../test/unit/models/user.spec');
+});
+
 
 /**
  * Controllers
  */
-//require('../test/unit/controllers/report.spec');
+describe("\n* Controllers", function() {
+  //require('../test/unit/controllers/report.spec');
+});
 
 /**
  * Services
  */
-require('../test/unit/services/latex.spec');
+describe("\n* Services", function() {
+  require('../test/unit/services/latex.spec');
+});
 
 /**
  * BDD
  */
-require('../test/yadda-tests');
+describe("\n* BDD", function() {
+  require('../test/yadda-tests');
+});
 
 
 // Global after hook

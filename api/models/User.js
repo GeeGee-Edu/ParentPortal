@@ -42,9 +42,17 @@ module.exports = {
   getCourseGrades: function(options, cb) {
     'use strict';
 
-    User.findById(options.id, function(err, user) {
+    User.find({
+      where: {
+        id: options.id
+      }
+    }).exec(function(err, user) {
       if (err) {
         return cb(err);
+      }
+
+      if (user[0] === undefined) {
+        return cb('Student doesn\'t exist');
       }
 
       var courses;
@@ -78,10 +86,18 @@ module.exports = {
       /**
        * Fetch all user's grades
        */
+      if(!options.timefrom){
+        options.timefrom = -8640000000000000; //min
+      }
+      if(!options.timeuntil){
+        options.timeuntil = 8640000000000000; //max
+      }
       Grade.find({
-        where: {
-          user: user.id
+        timemodified: {
+          '>': options.timefrom,
+          '<': options.timeuntil
         },
+        user: user.id,
         sort: 'timemodified'
       }).populate('item').exec(
         function(err, gs) {

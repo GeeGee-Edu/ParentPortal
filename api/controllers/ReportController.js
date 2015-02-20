@@ -18,8 +18,8 @@ module.exports = {
   pdf: function(req, res) {
     'use strict';
 
-    var headingColour = 'C0C0C0';
-    var rowColour = '9B9B9B';
+    var headingColour = '9B9B9B';
+    var rowColour = 'C0C0C0';
 
     //Build up a tex file
     var fs = require('fs');
@@ -34,18 +34,24 @@ module.exports = {
       }
     }).populate('user').exec(function(err, enrolled) {
       if (err) {
-        return res.send(400, err);
+        return res.serverError(err);
+      }
+
+      if (enrolled.length === 0) {
+        return res.badRequest('No users in that cohort', 'report');
       }
 
       var completedUsers = 0;
       for (var x = 0; x < enrolled.length; x++) {
         User.getCourseGrades({
-            id: enrolled[x].user.id
+            id: enrolled[x].user.id,
+            timefrom: Date.parse(req.query.timefrom) / 1000,
+            timeuntil: Date.parse(req.query.timeuntil) / 1000
           },
           /* jshint maxcomplexity : 10 */
           function(err, data) {
             if (err) {
-              return res.send(400, err);
+              return res.serverError(err);
             }
             var userHasData = false; //We dont want to print out a blank report.
 
@@ -134,11 +140,21 @@ module.exports = {
 
               tex += '\\end{document}';
 
-              var texfile = '.tmp/report.tex'; ///date?
+              var repname;
+              if(req.query.timefrom && req.query.timeuntil){
+              var from = new Date(Date.parse(req.query.timefrom));
+              var until = new Date(Date.parse(req.query.timeuntil));
+              repname = req.query.cohortid + '-' +
+                [from.getDate(), from.getMonth() + 1].join('') + '-' +
+                [until.getDate(), until.getMonth() + 1].join('');
+              }else{
+                repname = req.query.cohortid + '-' + 'all';
+              }
+              var texfile = '.tmp/' + repname + '.tex'; ///date?
               // Write the tex file
               fs.writeFile(texfile, tex, function(err) {
                 if (err) {
-                  res.send(400, err);
+                  res.serverError(err);
                 }
 
                 // Now convert to pdf
@@ -147,10 +163,10 @@ module.exports = {
                   dir: 'report'
                 }, function(err) {
                   if (err) {
-                    console.log(err);
+                    res.serverError(err);
                   }
-                  res.download('report/report.pdf',
-                    'file:///report.pdf');
+                  res.download('report/' + repname + '.pdf',
+                    'file:///' + repname + '.pdf');
                 });
               });
             }

@@ -15,7 +15,7 @@ before(function(done) {
     });
 });
 
-describe('Yadda', function() {
+describe('', function() {
     it('initialize yadda', function(done) {
 
         new Yadda.FeatureFileSearch('test/features').each(function(file) {
