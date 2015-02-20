@@ -24,11 +24,11 @@ module.exports = {
     },
 
     grademax: {
-      type: 'int'
+      type: 'integer'
     },
 
     hidden: {
-      type: 'int'
+      type: 'integer'
     },
 
     course: {

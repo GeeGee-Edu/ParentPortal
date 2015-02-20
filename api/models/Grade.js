@@ -26,27 +26,27 @@ module.exports = {
     },
 
     finalgrade: {
-      type: 'int'
+      type: 'integer'
     },
 
     rawgrademax: {
-      type: 'int'
+      type: 'integer'
     },
 
     usermodified: {
-      type: 'int'
+      type: 'integer'
     },
 
     timemodified: {
-      type: 'int'
+      type: 'integer'
     },
 
     aggregationweight:{
-      type: 'int'
+      type: 'integer'
     },
 
     hidden: {
-      type: 'int'
+      type: 'integer'
     },
 
     feedback: {
