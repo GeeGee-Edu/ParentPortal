@@ -46,9 +46,8 @@ module.exports = {
       timefrom: timefrom,
       timeuntil: timeuntil
     }, function(err, data) {
-      if (err) { return res.serverError(err); }
-      if (data.length === 0) {
-        return res.badRequest('No users in that cohort', 'report');
+      if (err) {
+        return res.badRequest(err, 'report');
       }
 
       // Loop through each user
@@ -96,12 +95,13 @@ module.exports = {
               // Backslash escapable
               var chars = ['_', '%', '#', '\'', '\"', '\$'];
 
+               // Do this before the others
+              str = str.replace(/\\/g, '\\textbackslash{}');
+
               chars.forEach(function(c){
                 str = String(str).replace(new RegExp(c, 'g'), '\\' + c);
               });
-
               // LaTex special escape method
-              str = str.replace(/\\/g, '\\textbackslash{}');
               str = str.replace(/\^/g, '\\textasciicircum{}');
               str = str.replace(/~/g, '\\textasciitilde{}');
 

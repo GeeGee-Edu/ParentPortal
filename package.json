@@ -30,7 +30,9 @@
   "scripts": {
     "start": "node app.js",
     "debug": "node debug app.js",
-    "test": "istanbul cover _mocha -- --reporter spec --timeout 20000 test/runtests"
+    "test": "npm run bdd",
+    "bdd": "istanbul cover _mocha -- --reporter spec --timeout 20000 test/bdd",
+    "tdd": "istanbul cover _mocha -- --reporter spec --timeout 20000 test/tdd"
   },
   "main": "app.js",
   "repository": {

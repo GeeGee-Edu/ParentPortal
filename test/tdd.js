@@ -1,7 +1,8 @@
 /**
- * Run all tests
+ * Run BDD tests
  *
  */
+var Yadda = require('yadda');
 var Sails = require('sails');
 
 // Start Sails Server
@@ -24,7 +25,8 @@ before(function(done) {
   }, function(err, sails) {
     console.log('Sails Lifted!');
     app = sails;
-    done(err);
+
+    require('../test/test-db').populate(done);
   });
 });
 
@@ -35,6 +37,7 @@ describe("\n* Models", function() {
   require('../test/unit/models/user.spec');
   require('../test/unit/models/cohort.spec');
 });
+
 
 /**
  * Controllers
@@ -48,16 +51,4 @@ describe("\n* Controllers", function() {
  */
 describe("\n* Services", function() {
   require('../test/unit/services/latex.spec');
-});
-
-/**
- * BDD
- */
-describe("\n* BDD", function() {
-  require('../test/yadda-tests');
-});
-
-// Stop the Sail Server
-after(function(done) {
-  Sails.lower(done);
 });

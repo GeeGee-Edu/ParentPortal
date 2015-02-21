@@ -6,139 +6,8 @@ var sinon = require('sinon');
 var chai = require('chai');
 var expect = chai.expect;
 var should = chai.should();
-var mainUser;
 
-before(function(done) {
-  var grades = 0;
-  var courses = 0;
-  var doneFlag = false;
-
-  var addGrade = function(opts, cb) {
-    grades++;
-    GradeItem.create({
-      itemname: opts.itemname,
-      iteminfo: opts.iteminfo,
-      grademax: 10,
-      hidden: 0,
-      course: opts.course
-    }).exec(function(err, item) {
-      Grade.create({
-        user: opts.user,
-        item: item,
-        finalgrade: 5,
-        rawgrademax: 10,
-        usermodified: 100,
-        timemodified: opts.timemodified,
-        hidden: 0,
-        feedback: opts.feedback
-      }).exec(function(err, grade) {
-        grades--;
-        if (grades === 0) {
-          if(doneFlag){
-            done();
-          }
-          doneFlag = true;
-        }
-      });
-    });
-  };
-
-  var enrolCourse = function(opts, cb) {
-    courses++;
-    Course.create({
-      fullname: opts.fullname,
-      shortname: opts.shortname
-    }).exec(function(err, course) {
-      Enrolment.create({
-        course: course
-      }).exec(function(err, enrolment) {
-        UserEnrolment.create({
-          user: opts.user,
-          enrolment: enrolment
-        }).exec(function(err, userenrol) {
-          courses--;
-          if (courses === 0) {
-            if(doneFlag){
-              done();
-            }
-            doneFlag = true;
-          }
-        });
-      });
-    });
-  };
-
-  User.create({
-    firstname: 'John',
-    lastname: 'Foo',
-    username: 'jfoo'
-  }).exec(function(err, user) {
-    mainUser = user;
-    enrolCourse({
-      user: user,
-      fullname: 'Course A',
-      shortname: 'A'
-    });
-    enrolCourse({
-      user: user,
-      fullname: 'Course B',
-      shortname: 'B'
-    });
-  });
-
-  User.create({
-    firstname: 'Bob',
-    lastname: 'Foo',
-    username: 'bfoo'
-  }).exec(function(err, user) {});
-
-  addGrade({
-    user: 1,
-    course: 1,
-    itemname: 'Item A',
-    iteminfo: 'Item A is very important',
-    feedback: 'Feedback A',
-    timemodified: 5
-  });
-  addGrade({
-    user: 1,
-    course: 1,
-    itemname: 'Item B',
-    iteminfo: 'Item B is not very important',
-    feedback: null,
-    timemodified: 20
-  });
-  addGrade({
-    user: 1,
-    course: 1,
-    itemname: 'Item C',
-    iteminfo: 'Item C is very important',
-    feedback: null,
-    timemodified: 14
-  });
-  addGrade({
-    user: 1,
-    course: 1,
-    itemname: 'Item D',
-    iteminfo: 'Item D is very important',
-    feedback: 'Feedback D',
-    timemodified: 10
-  });
-  addGrade({
-    user: 1,
-    course: 1,
-    itemname: 'Item E',
-    iteminfo: 'Item E is very important',
-    feedback: 'Feedback E',
-    timemodified: 25
-  });
-});
-
-/**
- * User Model Unit tests
- */
 describe('- User', function() {
-
   /**
    * getCourses
    */
@@ -148,12 +17,14 @@ describe('- User', function() {
         user: 1
       }, function(err, courses1) {
         should.not.exist(err);
-        User.getCourses({
-          user: mainUser
-        }, function(err, courses2) {
-          should.not.exist(err);
-          courses1.length.should.equal(courses2.length); // Not the best test
-          done();
+
+        User.findById(1, function(err,user){
+          User.getCourses({
+            user: user[0]
+          }, function(err, courses2) {
+            should.not.exist(err);
+            done();
+          });
         });
       });
     });
@@ -215,12 +86,13 @@ describe('- User', function() {
         user: 1
       }, function(err, grades1) {
         should.not.exist(err);
-        User.getGrades({
-          user: mainUser
-        }, function(err, grades2) {
-          should.not.exist(err);
-          grades1.length.should.equal(grades2.length); // Not the best test
-          done();
+        User.findById(1, function(err,user){
+          User.getGrades({
+            user: user[0]
+          }, function(err, grades2) {
+            should.not.exist(err);
+            done();
+          });
         });
       });
     });
