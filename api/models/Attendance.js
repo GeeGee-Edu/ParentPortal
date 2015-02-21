@@ -12,6 +12,8 @@ module.exports = {
   //connection: 'kitsongMongoServer',
 
   attributes: {
-    user: { model: 'user' }
+    user: {
+      model: 'user'
+    }
   }
 };
