@@ -1,3 +1,7 @@
+/**
+ * Cohort Unit tests
+ *
+ */
 var sinon = require('sinon');
 var chai = require('chai');
 var expect = chai.expect;
@@ -6,6 +10,7 @@ var mainCohort;
 
 before(function(done) {
   var tasks = 3;
+
   Cohort.create({
     name: 'Has Member with Grades'
   }).exec(function(err, cohort) {
@@ -49,7 +54,7 @@ before(function(done) {
  * Cohort Model Unit tests
  */
 describe('- Cohort', function() {
-  /**
+  /*
    * getUsersData
    */
   describe('getUsersData', function() {

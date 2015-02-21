@@ -1,5 +1,11 @@
+/**
+ * Run all tests
+ *
+ */
 var Sails = require('sails');
 
+// Start Sails Server
+// This takes time...
 before(function(done) {
   console.log('Lifing Sails...');
   Sails.lift({
@@ -8,21 +14,19 @@ before(function(done) {
     },
     connections: {
       testDB: {
-        adapter: 'sails-memory'
+       adapter: 'sails-memory'
       }
     },
     models: {
       connection: 'testDB',
       migrate: 'drop'
-    },
-
+    }
   }, function(err, sails) {
     console.log('Sails Lifted!');
     app = sails;
     done(err);
   });
 });
-
 
 /**
  * Models
@@ -31,7 +35,6 @@ describe("\n* Models", function() {
   require('../test/unit/models/user.spec');
   require('../test/unit/models/cohort.spec');
 });
-
 
 /**
  * Controllers
@@ -54,8 +57,7 @@ describe("\n* BDD", function() {
   require('../test/yadda-tests');
 });
 
-
-// Global after hook
+// Stop the Sail Server
 after(function(done) {
   Sails.lower(done);
 });
