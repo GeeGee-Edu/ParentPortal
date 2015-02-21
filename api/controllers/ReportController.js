@@ -2,59 +2,75 @@
  * ReportController
  *
  * @description :: Server-side logic for managing Reports
- * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 module.exports = {
 
   /**
-   * Reports  Home page
+   * Index page for reports
+   *
+   * @param  {[http]} res [reports view / error]
    */
   index: function(req, res) {
     'use strict';
     return res.view('report.ejs');
   },
 
+  /**
+   * Compile a pdf report and send back to be downloaded
+   *
+   * @param  {[int]}  req.query.cohortid   [cohortid for cohort to be printed]
+   * @param  {[int]}  req.query.timefrom   [lower time bound]
+   * @param  {[int]}  req.query.timeuntil  [upper time bound]
+   *
+   * @param  {[http]} res                  [pdf download / error]
+   */
   pdf: function(req, res) {
     'use strict';
 
+    // Quick access, easy to change front-end names
+    var cohortid = req.query.cohortid;
+    var timefrom = Date.parse(req.query.timefrom) / 1000;
+    var timeuntil = Date.parse(req.query.timeuntil) / 1000;
+
+    // TODO: These should come from a config file
     var headingColour = '9B9B9B';
     var rowColour = 'C0C0C0';
 
-    //Build up a tex file
+    // Fetch tex layout
     var fs = require('fs');
     var tex = fs.readFileSync('./views/latex/layout.tex', 'utf8');
 
-    /**
-     * Generate reports for a specific cohort.
-     */
+    // Fetch data for cohort
     Cohort.getUsersData({
-      cohort: req.query.cohortid,
-      timefrom: Date.parse(req.query.timefrom) / 1000,
-      timeuntil: Date.parse(req.query.timeuntil) / 1000
+      cohort: cohortid,
+      timefrom: timefrom,
+      timeuntil: timeuntil
     }, function(err, data) {
-      if (err) {
-        return res.serverError(err);
-      }
-
-      if (data[u].length === 0) {
+      if (err) { return res.serverError(err); }
+      if (data.length === 0) {
         return res.badRequest('No users in that cohort', 'report');
       }
 
-      for (var u = 0; u < data[u].length; u++) {
-        if(data[u][i].grades.length === 0){
+      // Loop through each user
+      for (var u = 0; u < data.length; u++) {
+        // Check if this user is worth our time...
+        if(data[u].grades.length === 0 || data[u].courses.length === 0){
           break;
         }
 
-        var userTex = '\\section*{' + data[u][u].user.fullname() + '}\n';
+        // Set up user heading
+        var userTex = '\\section*{' + data[u].user.fullname() + '}\n';
         userTex += '\\setcounter{page}{1}\n';
         userTex += '\\thispagestyle{firststyle}\n';
 
-        for (var i = 0; i < data[u].courses.length; i++) {
+        // Add all courses
+        data[u].courses.forEach(function(course){
           var courseTex = '';
-          var hasData = false;
+          var hasData = false; // Flag for whether this course has grades
 
+          // Set up the table and headings
           courseTex += '\\begin{table}[!htc]\n';
-          courseTex += '\\caption*{' + data[u].courses[i].fullname + '}';
+          courseTex += '\\caption*{' + course.fullname + '}';
           courseTex += '\\begin{tabular}' + //16.6
             '{ | p{1.5cm} | p{4.5cm} | p{7.5cm} | p{1.4cm} | p{1.4cm} |}\n';
           courseTex += '\\rowcolor[HTML]{' + headingColour + '} \\hline\n';
@@ -62,114 +78,115 @@ module.exports = {
             '\\textbf{Description} & \\textbf{Mark} & ' +
             '\\textbf{Out Of} \\\\ \\hline \n';
 
-          for (var j = 0; j < data[u].grades.length; j++) {
-            if (data[u].grades[j].item.course === data[u].courses[i].id &&
-              data[u].grades[j].item.itemname !== null &&
-              data[u].grades[j].usermodified !== null &&
-              data[u].grades[j].item.hidden == 0) { // jshint ignore:line
-              //Found grade data[u]
-              hasData = true;
-
-              // Preprocess to escape TeX special chars (\ & _ % $ # ~ ^)
-              var removeChars = function(str) {
-                var chars = ['\_', '\%', '\#', '\'', '\"'];
-                for (var i = 0; i < chars.length; i++) {
-                  str = String(str).replace(new RegExp(chars[i], 'g'),
-                    '\\' + chars[i]);
-                }
-                String(str).replace(/\\/g, '\\textbackslash{}');
-                String(str).replace(/\^/g, '\\textasciicircum{}');
-                String(str).replace(/\~/g, '\\textasciitilde{}');
-
-                return str;
-              };
-
-              var date = data[u].grades[j].date();
-              var name = data[u].grades[j].item.itemname;
-              var desc =
-              data[u].grades[j].item.iteminfo ? data[u].grades[j].item.iteminfo : '';
-              var grade = Math.round(data[u].grades[j].finalgrade * 10) / 10;
-              var outOf = Math.round(data[u].grades[j].item.grademax);
-              var feedback = data[u].grades[j].feedback;
-
-              courseTex += '\\rowcolor[HTML]{' + rowColour + '}';
-              courseTex += removeChars(date) + ' & ';
-              courseTex += removeChars(name) + ' & ';
-              courseTex += removeChars(desc) + ' & ';
-              courseTex += '\\multicolumn{1}{c|}{' +
-                removeChars(grade) + '} & ';
-              courseTex += '\\multicolumn{1}{c|}{' +
-                removeChars(outOf) + '} \\\\ \\hline \n';
-
-
-              if (feedback !== '' && feedback !== null) {
-                courseTex += ' & \\multicolumn{4}{m{12cm}|}{' +
-                  removeChars(feedback) + '}  \\\\ \\hline \n';
-              }
+          // Add relevant grades
+          (data[u].grades).filter(function(grade){
+            // Rules for printing a grade on the report
+            if (grade.item.course === course.id && // Correct course
+              grade.item.itemname !== null && // Has a name
+              grade.usermodified !== null && // User has done the activity
+              grade.item.hidden == 0) { // jshint ignore:line
+              return true;
             }
-          }
+          }).forEach(function(grade){
+            hasData = true; // This course has some data
+
+            // Escape all special LaTex characters
+            var escapeChars = function(str) {
+
+              // Backslash escapable
+              var chars = ['_', '%', '#', '\'', '\"', '\$'];
+
+              chars.forEach(function(c){
+                str = String(str).replace(new RegExp(c, 'g'), '\\' + c);
+              });
+
+              // LaTex special escape method
+              str = str.replace(/\\/g, '\\textbackslash{}');
+              str = str.replace(/\^/g, '\\textasciicircum{}');
+              str = str.replace(/~/g, '\\textasciitilde{}');
+
+              return str;
+            };
+
+            // Process all grade data
+            var date = grade.date();
+            var name = escapeChars(grade.item.itemname);
+            var desc = grade.item.iteminfo ?
+              escapeChars(grade.item.iteminfo) : '';
+            var feedback = grade.feedback ?
+              escapeChars(grade.feedback) : '';
+            var finalGrade = Math.round(grade.finalgrade * 10) / 10;
+            var outOf = Math.round(grade.item.grademax);
+
+            // Put data into the table
+            courseTex += '\\rowcolor[HTML]{' + rowColour + '}';
+            courseTex += date + ' & ';
+            courseTex += name + ' & ';
+            courseTex += desc + ' & ';
+            courseTex += '\\multicolumn{1}{c|}{' + finalGrade + '} & ';
+            courseTex += '\\multicolumn{1}{c|}{' + outOf + '} \\\\ \\hline \n';
+
+            // Check if we need a feedback row
+            if (feedback !== '') {
+              courseTex += ' & \\multicolumn{4}{m{12cm}|}{' +
+                feedback + '}  \\\\ \\hline \n';
+            }
+          });
+
+          // End table and add to userTex
           courseTex += '\\end{tabular}\n';
           courseTex += '\\end{table}\n';
+          if (hasData) { userTex += courseTex; }
+        });
 
-          if (hasData) {
-            userTex += courseTex;
-          }
-        }
-
-        tex += userTex + '\n \\cleardoublepage';
+        // Finish user and move to a new odd page
+        tex += userTex + '\n \\cleardoublepage \n';
       }
 
-
-      /* global latex */
       tex += '\\end{document}';
 
-      var repname;
-      if(req.query.timefrom && req.query.timeuntil){
-      var from = new Date(Date.parse(req.query.timefrom));
-      var until = new Date(Date.parse(req.query.timeuntil));
-      repname = req.query.cohortid + '-' +
-        [from.getDate(), from.getMonth() + 1].join('') + '-' +
-        [until.getDate(), until.getMonth() + 1].join('');
-      }else{
-        repname = req.query.cohortid + '-' + 'all';
-      }
-      var texfile = '.tmp/' + repname + '.tex'; ///date?
-      // Write the tex file
-      fs.writeFile(texfile, tex, function(err) {
-        if (err) {
-          res.serverError(err);
-        }
+      // File name parameters
+      var from = req.query.timefrom ?
+        (new Date(req.query.timefrom)).getMonth() + 1 : '*';
+      var until = req.query.timeuntil ?
+        (new Date(req.query.timeuntil)).getMonth() + 1 : '*';
 
-        // Now convert to pdf
+      // "1-(4-*)"
+      var reportName = cohortid + '(' + from + '-' + until + ')';
+
+      // Write the tex file
+      fs.writeFile('.tmp/' + reportName + '.tex', tex, function(err) {
+        if (err) { res.serverError(err); }
+
+        //vWrite the PDF
+        /* global latex */
         latex.createPDF({
-          texfile: texfile,
+          texfile: '.tmp/' + reportName + '.tex',
           dir: 'report'
         }, function(err) {
-          if (err) {
-            res.serverError(err);
-          }
-          res.download('report/' + repname + '.pdf',
-            'file:///' + repname + '.pdf');
+          if (err) { res.serverError(err); }
+
+          // Send file for download
+          res.download('report/' + reportName + '.pdf',
+            'file:///' + reportName + '.pdf');
         });
       });
     });
   },
 
   /**
-   * Sends user's active courses with grades and feedback.
+   * Compile a pdf report and send back to be downloaded
    *
-   * @param  {[type]} req
-   * @param  {[type]} res
+   * @param  {[int]}  req.query.user  [user]
+   * @param  {[http]} res             [json user data / error]
    */
-  // user: function(req, res) {
-  //   'use strict';
+  user: function(req, res) {
+    'use strict';
 
-  //   User.getCourses(req.query.id, function(err, courses) {
-  //     if (err) {
-  //       res.send(err);
-  //     }
+    User.getCourses(req.query.user, function(err, courses) {
+      if (err) { res.send(err); }
 
-  //     return res.json(courses);
-  //   });
-  // }
+      return res.json(courses);
+    });
+  }
 };

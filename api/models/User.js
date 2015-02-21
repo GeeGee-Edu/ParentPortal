@@ -1,8 +1,7 @@
 /**
  * User.js
  *
- * @description :: TODO
- * @docs        :: http://sailsjs.org/#!documentation/models
+ * @description :: Users are who we are gathering stats for from Moodle
  */
 module.exports = {
 
@@ -33,6 +32,14 @@ module.exports = {
     }
   },
 
+  /**
+   * Fetch all a users grades with an optional timeframe.
+   *
+   * @param  {[int]}    opts.user       [the user to fetch grades for]
+   * @param  {[int]}    opts.timefrom   [lower time bound]
+   * @param  {[int]}    opts.timeuntil  [upper time bound]
+   * @param  {Function} cb              [callback]
+   */
   getGrades: function(opts, cb) {
     'use strict';
 
@@ -40,12 +47,8 @@ module.exports = {
     var user = opts.user.id ? opts.user.id : opts.user;
 
     // If the either time bound is not present, set it to max
-    if(!opts.timefrom){
-      opts.timefrom = -8640000000000000; //min
-    }
-    if(!opts.timeuntil){
-      opts.timeuntil = 8640000000000000; //max
-    }
+    if(!opts.timefrom){ opts.timefrom = -8640000000000; }
+    if(!opts.timeuntil){ opts.timeuntil = 8640000000000; }
 
     // Fetch the grades
     Grade.find({
@@ -56,15 +59,17 @@ module.exports = {
       user: user,
       sort: 'timemodified DESC'
     }).populate('item').exec( function(err, grades) {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, grades);
+      if (err) { return cb(err); }
+
+      return cb(null, grades);
     });
   },
 
   /**
    * Fetch all of the courses this user is enrolled in.
+   *
+   * @param  {[int]}    opts.user  [the user to fetch courses for]
+   * @param  {Function} cb         [callback]
    */
   getCourses: function(opts, cb) {
     'use strict';
@@ -76,36 +81,37 @@ module.exports = {
     UserEnrolment.find({
       user: user
     }).populate('enrolment').exec(
-      function(err, enrols) {
-        if (err) {
-          cb(err);
-        }
+      function(err, userEnrolments) {
+        if (err) { cb(err); }
 
         // This user has no enrollments -> empty return, not error
-        if (enrols.length === 0) {
-          return cb(null, enrols);
+        if (userEnrolments.length === 0) {
+          return cb(null, userEnrolments);
         }
 
         // Fetch the courses from the enrolments
         var courses = [];
-        for (var i = 0; i < enrols.length; i++) {
-          Course.findById(enrols[i].enrolment.course, function(err, course) {
-            if (err) {
-              return cb(err);
-            }
+        userEnrolments.forEach(function(userEnrolment){
+          Course.find({
+            id : userEnrolment.enrolment.course
+          }, function(err, course) {
+            if (err) { return cb(err); }
 
             courses.push(course[0]);
 
             // We're dealing with parallel fetching
-            if (courses.length === enrols.length) {
-              // We need an alphabetical list
-              courses = courses.sort(function(a, b) {
-                return String(a.fullname) < String(b.fullname);
-              });
+            if (courses.length === userEnrolments.length) {
+
+              // We need a sorted list
+              courses = courses.sort(
+                function(a, b) {
+                  return String(a.fullname) < String(b.fullname);
+                });
+
               return cb(null, courses);
             }
           });
-        }
+        });
       });
   }
 };

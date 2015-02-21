@@ -1,14 +1,10 @@
 /**
  * Cohort.js
  *
- * @description :: TODO: You might write a short summary
- * @docs        :: http://sailsjs.org/#!documentation/models
+ * @description :: Cohorts contain groups of users
  */
-
 module.exports = {
-  /*
-   * Moodle table for the cohorts
-   */
+
   tableName: 'mdl_cohort',
 
   attributes: {
@@ -22,6 +18,12 @@ module.exports = {
     }
   },
 
+  /**
+   * Fetch all the data for users from a certain cohort.
+   *
+   * @param  {[int]}    opts.cohort [The cohort to be fetched]
+   * @param  {Function} cb          [callback]
+   */
   getUsersData: function(opts, cb){
     'use strict';
 
@@ -32,44 +34,40 @@ module.exports = {
     CohortMember.find({
       cohort: cohort
     }).populate('user').exec(function(err, enrolments) {
-      if (err) {
-        return cb(err);
-      }
-
+      if (err) { return cb(err); }
       // No users in this cohort
-      if (enrolments.length === 0) {
-        return cb('No users in this cohort');
-      }
+      if (enrolments.length === 0) { return cb('No users in this cohort'); }
 
+      // Build up a list of data in the form {user, [courses], [grades]}
       var usersData = [];
-      var user;
-      for (var i = 0; i < enrolments.length; i++) {
-        user = enrolments[i].user; // VERY NB because of the async loop
-        User.getCourses({
-          user: user
-        }, function(err, courses){
-          if(err){
-            console.log(err);
-            cb(err);
-          }
+      enrolments.forEach(function(enrolment){
 
+        // Get courses
+        User.getCourses({
+          user: enrolment.user
+        }, function(err, courses){
+          if(err){ cb(err); }
+
+          // Then fetch grades
           User.getGrades({
-            user: user
+            user: enrolment.user
           }, function(err, grades){
-            if(err){
-              cb(err);
-            }
+            if(err){ cb(err); }
+
+            // Add the object
             usersData.push({
-              user: user,
+              user: enrolment.user,
               courses: courses,
               grades: grades
             });
+
+            // Check if we're done
             if(usersData.length === enrolments.length){
               return cb(null, usersData);
             }
           });
         });
-      }
+      });
     });
   }
 };
