@@ -147,12 +147,12 @@ module.exports = {
 
       // File name parameters
       var from = req.query.timefrom ?
-        (new Date(req.query.timefrom)).getMonth() + 1 : '*';
+        (new Date(req.query.timefrom)).getMonth() + 1 : 'Begin';
       var until = req.query.timeuntil ?
-        (new Date(req.query.timeuntil)).getMonth() + 1 : '*';
+        (new Date(req.query.timeuntil)).getMonth() + 1 : 'End';
 
       // "1-(4-*)"
-      var reportName = cohortid + '(' + from + '-' + until + ')';
+      var reportName = cohortid + 'From' + from + 'To' + until;
 
       // Write the tex file
       fs.writeFile('.tmp/' + reportName + '.tex', tex, function(err) {
