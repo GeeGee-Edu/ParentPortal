@@ -3,40 +3,38 @@
 a [Sails](http://sailsjs.org) application built on top of [Moodle](http://moodle.org)
 ---
 
+## UNDER HEAVY DEVELOPMENT
+
 # Installation
 
 ParentPortal is a Node.js application, so you will have to have Node.js installed. Follow these [install instructions](https://github.com/joyent/node/wiki/installing-node.js-via-package-manager) if you don't already have it installed.
 
-Clone the repo and install dependancies:
+Clone the repo and install node dependancies:
 
 ```
 git clone "https://github.com/GeeGee-Edu/ParentPortal"
 cd ParentPortal
-sudo npm install -g
+npm install
 ```
 
-## Dependancies
+## External Dependancies
 
 * [Sails.js](http://sailsjs.org/)
-* Sails-mysql
-* [Html-pdf](https://www.npmjs.com/package/html-pdf)
+'''
+sudo npm install sails -g
+'''
+* pdflatex
+'''
+sudo apt-get install texlive-full
+'''
 
 ## Configuration
 
-Go to config/models.js and change the defauls server to `kitsongServer`.
-
+Go to config/models.js and set the default server
 
 # Start Server
 
 Run `sails lift` to start the web server and access it on [http://localhost:1337](http://localhost:1337).
-
-# Generating Report PDFs
-
-I have not written a nice web interface for this. So you will have to use some nerd-fu to get these reports.
-
-Type in the URL as follows. `http://localhost:1337/report/pdf?id=` followed by the id number of the cohort you want.
-
-Now wait a while. The report PDF will be put in the root directory of ParentPortal.
 
 ---
 
