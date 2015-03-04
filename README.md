@@ -19,14 +19,13 @@ npm install
 
 ## External Dependancies
 
-* [Sails.js](http://sailsjs.org/)
-'''
+```
 sudo npm install sails -g
-'''
+```
 * pdflatex
-'''
+```
 sudo apt-get install texlive-full
-'''
+```
 
 ## Configuration
 
