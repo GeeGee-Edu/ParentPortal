@@ -93,7 +93,7 @@ module.exports = {
             var escapeChars = function(str) {
 
               // Backslash escapable
-              var chars = ['_', '%', '#', '\'', '\"', '\$'];
+              var chars = ['_', '%', '#', '\'', '\"'];
 
                // Do this before the others
               str = str.replace(/\\/g, '\\textbackslash{}');
